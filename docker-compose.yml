@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080" # Mapeia a porta 8080 do container para a 8080 do host
+    environment:
+      - JAVA_OPTS=-Xms512m -Xmx1024m # Configuração de memória (opcional)
+    volumes:
+      - ./logs:/app/logs # Exemplo: monta um volume para logs (opcional)
+    restart: unless-stopped # Reinicia automaticamente caso falhe
