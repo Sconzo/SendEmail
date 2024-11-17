@@ -1,4 +1,4 @@
-package core.domain.model.account;
+package core.domain.model.account.enums;
 
 public enum ProviderEnum {
 

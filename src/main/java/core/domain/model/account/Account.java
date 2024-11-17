@@ -1,15 +1,20 @@
 package core.domain.model.account;
 
-import core.domain.model.StatusEnum;
+import core.domain.model.enums.StatusEnum;
 import core.domain.model.UpdatableBaseAudit;
+import core.domain.model.account.enums.ProviderEnum;
+import core.domain.model.inbox.Inbox;
+import core.domain.model.message.template.MessageTemplate;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
 
+@Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -33,5 +38,9 @@ public class Account extends UpdatableBaseAudit {
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Inbox> inboxList;
+
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MessageTemplate> messageTemplateList;
 
 }
