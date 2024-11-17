@@ -4,7 +4,7 @@ import core.domain.model.UpdatableBaseAudit;
 import core.domain.model.enums.StatusEnum;
 import core.domain.model.message.enums.DateIndexEnum;
 import core.domain.model.message.enums.DateRuleEnum;
-import core.domain.model.message.enums.DocStatusEnum;
+import core.domain.model.enums.PaymentStatusEnum;
 import core.domain.model.message.template.MessageTemplate;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -44,7 +44,7 @@ public class Message extends UpdatableBaseAudit {
     private String docType;
 
     @Column(name = "doc_status")
-    private DocStatusEnum docStatus;
+    private PaymentStatusEnum docStatus;
 
     @Column
     private StatusEnum status;
