@@ -1,4 +1,4 @@
-package com.ti9.SendEmail;
+package com.ti9.sendemail;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
