@@ -2,7 +2,7 @@ package core.domain.model.message;
 
 import core.domain.model.UpdatableBaseAudit;
 import core.domain.model.enums.StatusEnum;
-import core.domain.model.message.enums.DateIndexEnum;
+import core.domain.model.message.enums.BaseDateEnum;
 import core.domain.model.message.enums.DateRuleEnum;
 import core.domain.model.enums.PaymentStatusEnum;
 import core.domain.model.message.template.MessageTemplate;
@@ -32,7 +32,7 @@ public class Message extends UpdatableBaseAudit {
     private DateRuleEnum dateRule;
 
     @Column(name = "date_index")
-    private DateIndexEnum dateIndex;
+    private BaseDateEnum dateIndex;
 
     @Column(name = "selected_times")
     private String selectedTime;
