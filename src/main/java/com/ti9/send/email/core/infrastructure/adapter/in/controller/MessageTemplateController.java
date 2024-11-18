@@ -1,9 +1,7 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.controller;
 
-import com.ti9.send.email.core.domain.dto.message.CreateMessageRequest;
 import com.ti9.send.email.core.domain.dto.message.template.CreateMessageTemplateRequest;
-import com.ti9.send.email.core.domain.service.messageTemplateService;
-import com.ti9.send.email.core.domain.service.MessageTemplateService;
+import com.ti9.send.email.core.domain.service.message.template.MessageTemplateService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

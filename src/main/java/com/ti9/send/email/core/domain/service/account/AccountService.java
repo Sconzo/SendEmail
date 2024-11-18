@@ -1,4 +1,4 @@
-package com.ti9.send.email.core.domain.service;
+package com.ti9.send.email.core.domain.service.account;
 
 import com.ti9.send.email.core.domain.dto.account.AssociateAccountRequest;
 
