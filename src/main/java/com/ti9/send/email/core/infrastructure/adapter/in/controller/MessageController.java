@@ -1,7 +1,7 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.controller;
 
 import com.ti9.send.email.core.domain.dto.message.CreateMessageRequest;
-import com.ti9.send.email.core.domain.service.MessageService;
+import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,21 +12,21 @@ import java.util.UUID;
 @AllArgsConstructor
 public class MessageController {
 
-    private final MessageService messageService;
+    private final MessageRuleService messageRuleService;
 
     @PostMapping()
     public void createMessage(
             @RequestHeader String authorization,
             @RequestBody CreateMessageRequest request
     ) {
-        messageService.createMessage(request);
+        messageRuleService.createMessage(request);
     }
 
     @GetMapping("/list")
     public void listMessages(
             @RequestHeader String authorization
     ) {
-        messageService.listMessages();
+        messageRuleService.listMessages();
     }
 
     @GetMapping("{uuid}")
@@ -34,7 +34,7 @@ public class MessageController {
             @RequestHeader String authorization,
             @PathVariable UUID uuid
     ) {
-        messageService.getMessage(uuid);
+        messageRuleService.getMessage(uuid);
     }
 
     @PatchMapping("/{uuid}")
@@ -42,7 +42,7 @@ public class MessageController {
             @RequestHeader String authorization,
             @PathVariable UUID uuid
     ) {
-        messageService.updateMessage(uuid);
+        messageRuleService.updateMessage(uuid);
     }
 
     @DeleteMapping("/{uuid}")
@@ -50,6 +50,6 @@ public class MessageController {
             @RequestHeader String authorization,
             @PathVariable UUID uuid
     ) {
-        messageService.deleteMessage(uuid);
+        messageRuleService.deleteMessage(uuid);
     }
 }

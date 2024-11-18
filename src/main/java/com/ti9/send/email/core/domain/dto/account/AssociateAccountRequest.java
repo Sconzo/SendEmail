@@ -1,6 +1,6 @@
 package com.ti9.send.email.core.domain.dto.account;
 
-import core.domain.model.account.ProviderEnum;
+import com.ti9.send.email.core.domain.model.account.enums.ProviderEnum;
 
 public record AssociateAccountRequest (
         String name,

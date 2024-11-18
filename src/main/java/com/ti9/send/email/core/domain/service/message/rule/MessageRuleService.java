@@ -1,10 +1,10 @@
-package com.ti9.send.email.core.domain.service;
+package com.ti9.send.email.core.domain.service.message.rule;
 
 import com.ti9.send.email.core.domain.dto.message.CreateMessageRequest;
 
 import java.util.UUID;
 
-public interface MessageService {
+public interface MessageRuleService {
     void createMessage(CreateMessageRequest request);
 
     void listMessages();

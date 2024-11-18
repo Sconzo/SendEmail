@@ -1,4 +1,4 @@
-package com.ti9.send.email.core.domain.service;
+package com.ti9.send.email.core.domain.service.message.template;
 
 import com.ti9.send.email.core.domain.dto.message.template.CreateMessageTemplateRequest;
 

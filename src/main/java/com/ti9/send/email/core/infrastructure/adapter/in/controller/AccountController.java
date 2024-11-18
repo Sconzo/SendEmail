@@ -1,7 +1,7 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.controller;
 
 import com.ti9.send.email.core.domain.dto.account.AssociateAccountRequest;
-import com.ti9.send.email.core.domain.service.AccountService;
+import com.ti9.send.email.core.domain.service.account.AccountService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

@@ -14,7 +14,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "cfr")
+@Entity(name = "cfi")
 public class Cfi {
     @Id
     @Column
