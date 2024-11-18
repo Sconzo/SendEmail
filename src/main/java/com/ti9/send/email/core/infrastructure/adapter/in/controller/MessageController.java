@@ -46,7 +46,7 @@ public class MessageController {
     }
 
     @DeleteMapping("/{uuid}")
-    public void deleteAccount(
+    public void deleteMessage(
             @RequestHeader String authorization,
             @PathVariable UUID uuid
     ) {
