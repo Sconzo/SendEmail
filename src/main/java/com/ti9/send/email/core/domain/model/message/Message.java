@@ -56,4 +56,13 @@ public class Message extends UpdatableBaseAudit {
     @JoinColumn(name = "model_id")
     private MessageTemplate messageTemplate;
 
+    public Message(
+            UUID id,
+            String name,
+            StatusEnum status
+    ) {
+        this.id = id;
+        this.name = name;
+        this.status = status;
+    }
 }
