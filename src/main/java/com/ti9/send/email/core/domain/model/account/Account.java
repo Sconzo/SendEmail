@@ -43,4 +43,15 @@ public class Account extends UpdatableBaseAudit {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MessageTemplate> messageTemplateList;
 
+    public Account(
+            UUID id,
+            String name,
+            ProviderEnum provider,
+            StatusEnum status
+    ) {
+        this.name = name;
+        this.id = id;
+        this.provider = provider;
+        this.status = status;
+    }
 }
