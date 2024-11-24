@@ -1,17 +1,21 @@
 package com.ti9.send.email.core.domain.model.message;
 
+import com.ti9.send.email.core.domain.dto.message.MessageRequest;
 import com.ti9.send.email.core.domain.model.UpdatableBaseAudit;
 import com.ti9.send.email.core.domain.model.enums.StatusEnum;
 import com.ti9.send.email.core.domain.model.message.enums.BaseDateEnum;
 import com.ti9.send.email.core.domain.model.message.enums.DateRuleEnum;
 import com.ti9.send.email.core.domain.model.message.template.MessageTemplate;
 import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
+import com.ti9.send.email.core.infrastructure.adapter.converter.PaymentStatusEnumArrayConverter;
+import com.ti9.send.email.core.infrastructure.adapter.converter.StringArrayConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -35,16 +39,19 @@ public class Message extends UpdatableBaseAudit {
     private BaseDateEnum dateIndex;
 
     @Column(name = "selected_times")
-    private String selectedTime;
+    @Convert(converter = StringArrayConverter.class)
+    private List<String> selectedTime;
 
     @Column(name = "selected_days")
-    private Integer selectedDay;
+    private List<Short> selectedDay;
 
     @Column(name = "doc_types")
-    private String docType;
+    @Convert(converter = StringArrayConverter.class)
+    private List<String> docType;
 
     @Column(name = "doc_status")
-    private PaymentStatusEnum docStatus;
+    @Convert(converter = PaymentStatusEnumArrayConverter.class)
+    private List<PaymentStatusEnum> docStatus;
 
     @Column
     private StatusEnum status;
@@ -64,5 +71,17 @@ public class Message extends UpdatableBaseAudit {
         this.id = id;
         this.name = name;
         this.status = status;
+    }
+
+    public void update(MessageRequest messageRequest) {
+        this.name = messageRequest.name();
+        this.dateRule = messageRequest.dateRule();
+        this.dateIndex = messageRequest.dateBase();
+        this.selectedTime = messageRequest.sendingTimeList();
+        this.selectedDay = messageRequest.sendingDayList();
+        this.docType = messageRequest.docTypeList();
+        this.docStatus = messageRequest.paymentStatusList();
+        this.status = messageRequest.status();
+        this.includeAttachment = messageRequest.sendAttachments();
     }
 }
