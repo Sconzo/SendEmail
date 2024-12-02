@@ -18,7 +18,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "ecob_account")
+@Entity
+@Table(name = "ecob_account")
 public class Account extends UpdatableBaseAudit {
     @Id
     @Column

@@ -10,22 +10,22 @@ import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
 import com.ti9.send.email.core.infrastructure.adapter.converter.PaymentStatusEnumArrayConverter;
 import com.ti9.send.email.core.infrastructure.adapter.converter.StringArrayConverter;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "ecob_msg")
+@Entity
+@Table(name = "ecob_msg")
 public class Message extends UpdatableBaseAudit {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column
     private UUID id;
 
