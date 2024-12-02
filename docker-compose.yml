@@ -22,9 +22,11 @@ services:
     depends_on:
      - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:54320/meubanco
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/meubanco
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: senha
+      SPRING_JPA_HIBERNATE_SHOW_SQL: true
+      SPRING_JPA_HIBERNATE_DLL_AUTO: none
       JAVA_OPTS: -Xms512m -Xmx1024m
     volumes:
      - ./logs:/app/logs
