@@ -34,6 +34,6 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public List<Account> list() {
-        return jpaRepository.findAllWithoutRelations();
+        return jpaRepository.findAll();
     }
 }

@@ -10,11 +10,11 @@ import java.util.UUID;
 public interface JpaAccountRepository extends JpaRepository<Account, UUID> {
 
 
-    @Query("select new com.ti9.send.email.core.domain.model.account.Account(" +
-            " a.id, " +
-            " a.name, " +
-            " a.provider, " +
-            " a.status " +
-            " ) from Account a ")
-    List<Account> findAllWithoutRelations();
+//    @Query("select new com.ti9.send.email.core.domain.model.account.Account(" +
+//            " a.id, " +
+//            " a.name, " +
+//            " a.provider, " +
+//            " a.status " +
+//            " ) from Account a ")
+//    List<Account> findAllWithoutRelations();
 }
