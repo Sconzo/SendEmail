@@ -14,7 +14,7 @@ import java.util.Map;
 
 @RestController
 public class GoogleOAuth2Controller {
-    private static final String CLIENT_ID = "210289579733-6sdm96cu0vlrp47361js8jelr009tk87.apps.googleusercontent.com";
+    private static final String DONT_TELL = "210289579733-6sdm96cu0vlrp47361js8jelr009tk87.apps.googleusercontent.com";
     private static final String REDIRECT_URI = "http://localhost:8080/oauth2/callback/google";
     private static final String SCOPE = "https://www.googleapis.com/auth/gmail.send"; // Escopo para enviar e-mails
     private static final String AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth";
@@ -25,7 +25,7 @@ public class GoogleOAuth2Controller {
         String url = String.format(
                 "%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&access_type=offline",
                 AUTHORIZATION_URL,
-                CLIENT_ID,
+                DONT_TELL,
                 REDIRECT_URI,
                 SCOPE
         );
@@ -42,7 +42,7 @@ public class GoogleOAuth2Controller {
         // Construir o corpo da requisição no formato URL-encoded
         String requestBody = UriComponentsBuilder.newInstance()
                 .queryParam("code", code)
-                .queryParam("client_id", CLIENT_ID)
+                .queryParam("client_id", DONT_TELL)
                 .queryParam("client_secret", "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")
                 .queryParam("redirect_uri", "http://localhost:8080/oauth2/callback/google")
                 .queryParam("grant_type", "authorization_code")
