@@ -14,8 +14,6 @@ import java.util.Map;
 
 @RestController
 public class GoogleOAuth2Controller {
-    private static final String CLIENT_ID = "";
-    private static final String CLIENT_SECRET = "";
     private static final String REDIRECT_URI = "http://localhost:8080/oauth2/callback/google";
     private static final String SCOPE = "https://www.googleapis.com/auth/gmail.send"; // Escopo para enviar e-mails
     private static final String AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth";
