@@ -22,7 +22,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "ecob_msg")
-public class Message extends UpdatableBaseAudit {
+public class MessageRule extends UpdatableBaseAudit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -63,7 +63,7 @@ public class Message extends UpdatableBaseAudit {
     @JoinColumn(name = "model_id")
     private MessageTemplate messageTemplate;
 
-    public Message(
+    public MessageRule(
             UUID id,
             String name,
             StatusEnum status
