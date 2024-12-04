@@ -1,6 +1,6 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.controller;
 
-import com.sun.mail.smtp.SMTPTransport;
+
 import com.ti9.send.email.core.domain.dto.OAuth2AccessToken;
 import com.ti9.send.email.core.domain.service.account.AccountService;
 import jakarta.mail.*;
@@ -44,7 +44,7 @@ public class AccountController {
         String tokenUrl = "https://oauth2.googleapis.com/token";
 
         String body = UriComponentsBuilder.newInstance()
-                .queryParam("refresh_token", "1//0hUVdKj5n7NbhCgYIARAAGBESNwF-L9IrXywWa0cJShJN53jr5Ph-oLAAKcys7lupYvtEmE8AZ6cKoWHegH84k4qvv7S6vhcarVI")
+                .queryParam("refresh_token", "1//0hdYr4err3YoECgYIARAAGBESNwF-L9IrZ0AYkx3hrjmUsoZpZLbQXFr0KF1YoNlUzJgdZlNkLpgcJg9AcOLbKocBpEEeAGbYuKw")
                 .queryParam("client_id", clientId)
                 .queryParam("client_secret", clientSecret)
                 .queryParam("grant_type", "refresh_token")

@@ -1,6 +1,6 @@
 package com.ti9.send.email.core.infrastructure.adapter.out.repository.message;
 
-import com.ti9.send.email.core.domain.model.message.Message;
+import com.ti9.send.email.core.domain.model.message.MessageRule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface JpaMessageRepository extends JpaRepository<Message, UUID> {
+public interface JpaMessageRepository extends JpaRepository<MessageRule, UUID> {
 
 
     @Query("select new com.ti9.send.email.core.domain.model.message.Message(" +
@@ -17,5 +17,5 @@ public interface JpaMessageRepository extends JpaRepository<Message, UUID> {
             " m.name," +
             " m.status" +
             " ) from Message m")
-    List<Message> findAllWithoutRelations();
+    List<MessageRule> findAllWithoutRelations();
 }

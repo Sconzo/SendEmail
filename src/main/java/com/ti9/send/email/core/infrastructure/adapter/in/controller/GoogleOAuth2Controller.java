@@ -14,6 +14,8 @@ import java.util.Map;
 
 @RestController
 public class GoogleOAuth2Controller {
+    private static final String CLIENT_ID = "210289579733-6sdm96cu0vlrp47361js8jelr009tk87.apps.googleusercontent.com";
+    private static final String CLIENT_SECRET = "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";
     private static final String REDIRECT_URI = "http://localhost:8080/oauth2/callback/google";
     private static final String SCOPE = "https://www.googleapis.com/auth/gmail.send"; // Escopo para enviar e-mails
     private static final String AUTHORIZATION_URL = "https://accounts.google.com/o/oauth2/auth";
@@ -22,7 +24,7 @@ public class GoogleOAuth2Controller {
     public RedirectView redirectToGoogleAuthorization() {
         // Construir o URL de autorização
         String url = String.format(
-                "%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&access_type=offline",
+                "%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&access_type=offline&prompt=consent",
                 AUTHORIZATION_URL,
                 CLIENT_ID,
                 REDIRECT_URI,
