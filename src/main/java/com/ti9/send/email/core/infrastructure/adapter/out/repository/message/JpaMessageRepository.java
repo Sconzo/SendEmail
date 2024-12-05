@@ -16,6 +16,6 @@ public interface JpaMessageRepository extends JpaRepository<MessageRule, UUID> {
             " m.id," +
             " m.name," +
             " m.status" +
-            " ) from Message m")
+            " ) from MessageRule m")
     List<MessageRule> findAllWithoutRelations();
 }
