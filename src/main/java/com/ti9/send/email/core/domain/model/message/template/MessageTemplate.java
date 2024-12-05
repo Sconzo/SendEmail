@@ -25,13 +25,15 @@ public class MessageTemplate extends UpdatableBaseAudit {
     private UUID id;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private ActionEnum action;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @Column(name = "recipiente_type")
+    @Column(name = "recipient_type")
+    @Enumerated(EnumType.STRING)
     private RecipientTypeEnum recipientType;
 
     @Column(name = "reply_to")
@@ -46,7 +48,7 @@ public class MessageTemplate extends UpdatableBaseAudit {
     @Column
     private String subject;
 
-    @Column
+    @Column(name = "body_text")
     private String Body;
 
     @OneToMany(mappedBy = "messageTemplate", cascade = CascadeType.ALL, orphanRemoval = true)
