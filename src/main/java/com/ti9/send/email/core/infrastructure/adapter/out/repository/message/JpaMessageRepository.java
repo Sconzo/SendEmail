@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface JpaMessageRepository extends JpaRepository<MessageRule, UUID> {
 
 
-    @Query("select new com.ti9.send.email.core.domain.model.message.Message(" +
+    @Query("select new com.ti9.send.email.core.domain.model.message.MessageRule(" +
             " m.id," +
             " m.name," +
             " m.status" +
