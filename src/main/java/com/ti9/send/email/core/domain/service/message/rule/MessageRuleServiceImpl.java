@@ -8,24 +8,24 @@ import com.ti9.send.email.core.domain.dto.DataWrapper;
 import com.ti9.send.email.core.domain.dto.message.MessageRequest;
 import com.ti9.send.email.core.domain.dto.message.MessageDTO;
 import com.ti9.send.email.core.domain.dto.message.SummaryMessageDTO;
-import com.ti9.send.email.core.domain.model.message.Message;
+import com.ti9.send.email.core.domain.model.message.MessageRule;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class MessageRuleRuleServiceImpl implements MessageRuleService {
+public class MessageRuleServiceImpl implements MessageRuleService {
 
     private final MessageRepository repository;
 
-    public MessageRuleRuleServiceImpl(MessageRepository repository) {
+    public MessageRuleServiceImpl(MessageRepository repository) {
         this.repository = repository;
     }
 
     @Override
     public DataWrapper<MessageDTO> createMessage(MessageRequest request) {
-        return new DataWrapper<>(MessageMapper.toResponse(repository.save(MessageMapper.toEntity(request))));
+        return new DataWrapper<>(MessageMapper.toDTO(repository.save(MessageMapper.toEntity(request))));
     }
 
     @Override
@@ -35,9 +35,9 @@ public class MessageRuleRuleServiceImpl implements MessageRuleService {
 
     @Override
     public DataWrapper<MessageDTO> getMessage(UUID uuid) {
-        Optional<Message> messageOptional = repository.findById(uuid);
+        Optional<MessageRule> messageOptional = repository.findById(uuid);
         if (messageOptional.isPresent()) {
-            return new DataWrapper<>(MessageMapper.toResponse(messageOptional.get()));
+            return new DataWrapper<>(MessageMapper.toDTO(messageOptional.get()));
         } else {
             throw new ResourceNotFoundException("Message with id " + uuid + " not found.");
         }
@@ -45,10 +45,10 @@ public class MessageRuleRuleServiceImpl implements MessageRuleService {
 
     @Override
     public DataWrapper<MessageDTO> updateMessage(UUID uuid, MessageRequest request) {
-        Optional<Message> messageOptional = repository.findById(uuid);
+        Optional<MessageRule> messageOptional = repository.findById(uuid);
         if (messageOptional.isPresent()) {
             messageOptional.get().update(request);
-            return new DataWrapper<>(MessageMapper.toResponse(repository.save(messageOptional.get())));
+            return new DataWrapper<>(MessageMapper.toDTO(repository.save(messageOptional.get())));
         } else {
             throw new ResourceNotFoundException("Message with id " + uuid + " not found.");
         }
