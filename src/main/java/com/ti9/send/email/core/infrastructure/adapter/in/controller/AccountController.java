@@ -4,8 +4,11 @@ package com.ti9.send.email.core.infrastructure.adapter.in.controller;
 import com.ti9.send.email.core.domain.dto.OAuth2AccessToken;
 import com.ti9.send.email.core.domain.service.account.AccountService;
 import jakarta.mail.*;
+import jakarta.mail.internet.InternetAddress;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
@@ -40,11 +43,11 @@ public class AccountController {
             @RequestHeader String authorization,
             @RequestParam("clientId") String clientId,
             @RequestParam("clientSecret") String clientSecret
-    ) throws MessagingException {
+    ) throws Exception {
         String tokenUrl = "https://oauth2.googleapis.com/token";
 
         String body = UriComponentsBuilder.newInstance()
-                .queryParam("refresh_token", "1//0hdYr4err3YoECgYIARAAGBESNwF-L9IrZ0AYkx3hrjmUsoZpZLbQXFr0KF1YoNlUzJgdZlNkLpgcJg9AcOLbKocBpEEeAGbYuKw")
+                .queryParam("refresh_token", "1//0hu5306bxenT3CgYIARAAGBESNwF-L9Ir42KWIBY_Z-dsQXd-d-N2DBZ6Icn83fdlpldJkPvrnlzFBDhoCk2TC54J_Rc3e92x8gs")
                 .queryParam("client_id", clientId)
                 .queryParam("client_secret", clientSecret)
                 .queryParam("grant_type", "refresh_token")
@@ -64,6 +67,9 @@ public class AccountController {
 
 
         String accessToken = (String) response.getBody().get("access_token");
+
+
+        sendEmail("rspolydoro@gmail.com", "poly", "poly lindo", accessToken);
 
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com"); // Ou outro servidor
@@ -112,6 +118,29 @@ public class AccountController {
 
         throw new RuntimeException("Erro ao atualizar o access_token");
 
+    }
+
+    @Autowired
+    private JavaMailSender javaMailSender;
+
+    public void sendEmail(String to, String subject, String body, String accessToken) throws Exception {
+        JavaMailSenderImpl sender = (JavaMailSenderImpl) javaMailSender;
+        Properties props = sender.getJavaMailProperties();
+
+        // Criar sessão SMTP autenticada com OAuth2
+        Session session = Session.getInstance(props);
+        MimeMessage message = new MimeMessage(session);
+
+        message.setFrom(new InternetAddress("costing013@gmail.com")); // Seu e-mail
+        message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(to));
+        message.setSubject(subject);
+        message.setText(body);
+
+        // Conectar usando o access token
+        Transport transport = session.getTransport("smtp");
+        transport.connect("smtp.gmail.com", "costing013@gmail.com", "ya29.a0AeDClZA-dAr4yWaX3mFhdOIJhQl0TSEli7_iAHc0n7HkSWSbsjJCc_088SK9i_cT2cUT8xOMvO8KomSwloo5bUUXPWKxXvt4bmJSLn-71X1H3VRq2zNzNjUVGbywHZqop79uu16ZxwhUqGqX87YZqwcPijO41i1VQMTp5eZIaCgYKAV8SARISFQHGX2MiIM-gIPD4VpeLUCzVQauftg0175");
+        transport.sendMessage(message, message.getAllRecipients());
+        transport.close();
     }
 
 
