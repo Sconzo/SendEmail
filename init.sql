@@ -514,6 +514,33 @@ ALTER TABLE ONLY public.ecob_msg_model
     ADD CONSTRAINT fk_ecob_msg_modelo_ecob_account1 FOREIGN KEY (account_id) REFERENCES public.ecob_account(id) ON UPDATE CASCADE;
 
 
+
+INSERT INTO public.ecob_account (id,name,provider,status,settings,created,updated) VALUES (
+	 '36734e49-c3a2-4caa-b56a-b7233fe4f987'::uuid,
+	 'Barba Account',
+	 'GMAIL',
+	 'ACTIVE',
+	 '{"scope": "https://www.googleapis.com/auth/gmail.send https://mail.google.com/", "expires_in": 3599, "token_type": "Bearer", "access_token": "ya29.a0AeDClZA-dAr4yWaX3mFhdOIJhQl0TSEli7_iAHc0n7HkSWSbsjJCc_088SK9i_cT2cUT8xOMvO8KomSwloo5bUUXPWKxXvt4bmJSLn-71X1H3VRq2zNzNjUVGbywHZqop79uu16ZxwhUqGqX87YZqwcPijO41i1VQMTp5eZIaCgYKAV8SARISFQHGX2MiIM-gIPD4VpeLUCzVQauftg0175", "refresh_token": "1//046pSJKArkthgCgYIARAAGAQSNwF-L9IrphSVmTGpcyZ64OlvURVjtnINi8jOsMO_xn-mOw6udCGAeF01ok-NhUF_Jsp_OYgzV1E"}',
+	 '2024-12-04 21:25:19.08135',
+	 NULL
+ );
+
+ INSERT INTO public.ecob_msg_model (id,"action",account_id,recipient_type,reply_to,cc,bcc,subject,body_text,created,updated) VALUES (
+    'ffd9c55f-5c84-4f26-9159-c8b09137e187'::uuid,
+    'EMAIL',
+    '36734e49-c3a2-4caa-b56a-b7233fe4f987'::uuid,
+    'COBRANCA',
+    'rafael@rafael.com',
+    '{rafael.wkt@gmail.com}',
+    '{}',
+    'Ola mundo',
+    '<h1>Ola mundo body</h1><br><p>Email test!</p>',
+    '2024-12-04 21:52:35.297949',
+    NULL
+);
+
+
+
 -- Completed on 2024-11-07 16:35:48
 
 --
