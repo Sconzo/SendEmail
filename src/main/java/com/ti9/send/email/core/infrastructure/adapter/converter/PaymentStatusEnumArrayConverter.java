@@ -11,11 +11,11 @@ import java.util.stream.Collectors;
 @Converter
 public class PaymentStatusEnumArrayConverter implements AttributeConverter<List<PaymentStatusEnum>, String> {
     @Override
-    public String convertToDatabaseColumn(List<PaymentStatusEnum> strings) {
-        if (strings == null || strings.isEmpty()) {
+    public String convertToDatabaseColumn(List<PaymentStatusEnum> paymentStatusEnumList) {
+        if (paymentStatusEnumList == null || paymentStatusEnumList.isEmpty()) {
             return null;
         }
-        return strings.stream()
+        return paymentStatusEnumList.stream()
                 .map(Enum::name)
                 .collect(Collectors.joining(","));
     }

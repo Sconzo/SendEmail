@@ -1,7 +1,7 @@
 package com.ti9.send.email.core.infrastructure.adapter.out.repository.message;
 
 import com.ti9.send.email.core.application.port.out.message.MessageRepository;
-import com.ti9.send.email.core.domain.model.message.Message;
+import com.ti9.send.email.core.domain.model.message.MessageRule;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,13 +18,13 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public Optional<Message> findById(UUID id) {
+    public Optional<MessageRule> findById(UUID id) {
         return jpaRepository.findById(id);
     }
 
     @Override
-    public Message save(Message message) {
-        return jpaRepository.save(message);
+    public MessageRule save(MessageRule messageRule) {
+        return jpaRepository.save(messageRule);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public List<Message> list() {
+    public List<MessageRule> list() {
         return jpaRepository.findAllWithoutRelations();
     }
 }
