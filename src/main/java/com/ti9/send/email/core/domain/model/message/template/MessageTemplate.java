@@ -5,6 +5,7 @@ import com.ti9.send.email.core.domain.model.account.Account;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
 import com.ti9.send.email.core.domain.model.message.template.enums.ActionEnum;
 import com.ti9.send.email.core.domain.model.message.template.enums.RecipientTypeEnum;
+import com.ti9.send.email.core.infrastructure.adapter.converter.StringArrayConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity(name = "ecob_msg_model")
 public class MessageTemplate extends UpdatableBaseAudit {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column
     private UUID id;
 
@@ -40,10 +43,12 @@ public class MessageTemplate extends UpdatableBaseAudit {
     private String replyTo;
 
     @Column
-    private String cc;
+    @Convert(converter = StringArrayConverter.class)
+    private List<String> cc;
 
     @Column
-    private String bcc;
+    @Convert(converter = StringArrayConverter.class)
+    private List<String> bcc;
 
     @Column
     private String subject;
@@ -51,7 +56,7 @@ public class MessageTemplate extends UpdatableBaseAudit {
     @Column(name = "body_text")
     private String Body;
 
-    @OneToMany(mappedBy = "messageTemplate", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "messageTemplate", cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<MessageRule> messageRuleList;
 
 }

@@ -199,7 +199,7 @@ CREATE TABLE public.ecob_msg (
     date_rule character varying(45) NOT NULL,
     date_index character varying(45) NOT NULL,
     selected_times character varying(5)[] NOT NULL,
-    selected_days smallint NOT NULL,
+    selected_days smallint[] NOT NULL,
     doc_types character varying(45)[] NOT NULL,
     doc_status character varying(45)[] NOT NULL,
     include_attachments boolean DEFAULT false NOT NULL,
