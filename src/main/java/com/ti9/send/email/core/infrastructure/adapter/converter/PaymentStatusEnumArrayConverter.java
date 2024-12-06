@@ -9,24 +9,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Converter
-public class PaymentStatusEnumArrayConverter implements AttributeConverter<List<PaymentStatusEnum>, String> {
+public class PaymentStatusEnumArrayConverter implements AttributeConverter<List<PaymentStatusEnum>, String[]> {
     @Override
-    public String convertToDatabaseColumn(List<PaymentStatusEnum> paymentStatusEnumList) {
+    public String[] convertToDatabaseColumn(List<PaymentStatusEnum> paymentStatusEnumList) {
         if (paymentStatusEnumList == null || paymentStatusEnumList.isEmpty()) {
             return null;
         }
-        return paymentStatusEnumList.stream()
-                .map(Enum::name)
-                .collect(Collectors.joining(","));
+        return paymentStatusEnumList.stream().map(Enum::name).toArray(String[]::new);
     }
 
     @Override
-    public List<PaymentStatusEnum> convertToEntityAttribute(String s) {
-        if (s == null || s.isEmpty()) {
+    public List<PaymentStatusEnum> convertToEntityAttribute(String[] dbData) {
+        if (dbData == null || dbData.length == 0) {
             return null;
         }
-        return Arrays.stream(s.split(","))
-                .map(String::trim)
+        return Arrays.stream(dbData)
                 .map(PaymentStatusEnum::valueOf)
                 .collect(Collectors.toList());
     }
