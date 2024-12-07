@@ -23,7 +23,6 @@ public class MessageTemplateController {
             @RequestHeader String authorization,
             @RequestBody MessageTemplateRequest request
     ) {
-
         DataWrapper<MessageTemplateDTO> dataWrapper = messageTemplateService.createMessageTemplate(request);
         dataWrapper.setMessage("Created successfully.");
         dataWrapper.setStatus(HTTPResponse.SC_OK);
@@ -37,7 +36,7 @@ public class MessageTemplateController {
         messageTemplateService.listMessageTemplates();
     }
 
-    @GetMapping("{uuid}")
+    @GetMapping("/{uuid}")
     public void getMessageTemplate(
             @RequestHeader String authorization,
             @PathVariable UUID uuid

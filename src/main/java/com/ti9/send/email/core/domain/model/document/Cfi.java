@@ -1,4 +1,4 @@
-package com.ti9.send.email.core.domain.model.cre;
+package com.ti9.send.email.core.domain.model.document;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

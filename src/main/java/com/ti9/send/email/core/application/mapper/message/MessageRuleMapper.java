@@ -1,4 +1,4 @@
-package com.ti9.send.email.core.application.mapper;
+package com.ti9.send.email.core.application.mapper.message;
 
 import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleRequest;
 import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleDTO;

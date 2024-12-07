@@ -1,4 +1,4 @@
-package com.ti9.send.email.core.infrastructure.adapter.out.repository.message;
+package com.ti9.send.email.core.infrastructure.adapter.out.repository.message.rule;
 
 import com.ti9.send.email.core.application.port.out.message.rule.MessageRuleRepository;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
@@ -11,9 +11,9 @@ import java.util.UUID;
 @Repository
 public class MessageRuleRepositoryImpl implements MessageRuleRepository {
 
-    private final JpaMessageRepository jpaRepository;
+    private final JpaMessageRuleRepository jpaRepository;
 
-    public MessageRuleRepositoryImpl(JpaMessageRepository jpaRepository) {
+    public MessageRuleRepositoryImpl(JpaMessageRuleRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 

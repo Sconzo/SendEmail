@@ -1,4 +1,4 @@
-package com.ti9.send.email.core.infrastructure.adapter.out.repository.message;
+package com.ti9.send.email.core.infrastructure.adapter.out.repository.message.rule;
 
 import com.ti9.send.email.core.domain.model.message.MessageRule;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface JpaMessageRepository extends JpaRepository<MessageRule, UUID> {
+public interface JpaMessageRuleRepository extends JpaRepository<MessageRule, UUID> {
 
 
     @Query("select new com.ti9.send.email.core.domain.model.message.MessageRule(" +
