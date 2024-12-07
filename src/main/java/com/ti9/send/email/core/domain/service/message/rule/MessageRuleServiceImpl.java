@@ -1,7 +1,7 @@
 package com.ti9.send.email.core.domain.service.message.rule;
 
 import com.ti9.send.email.core.application.exceptions.ResourceNotFoundException;
-import com.ti9.send.email.core.application.mapper.MessageRuleMapper;
+import com.ti9.send.email.core.application.mapper.message.MessageRuleMapper;
 import com.ti9.send.email.core.application.port.out.message.rule.MessageRuleRepository;
 import com.ti9.send.email.core.domain.dto.DataListWrapper;
 import com.ti9.send.email.core.domain.dto.DataWrapper;

@@ -1,4 +1,4 @@
-package com.ti9.send.email.core.domain.model.cre;
+package com.ti9.send.email.core.domain.model.document;
 
 import com.ti9.send.email.core.domain.model.UpdatableBaseAudit;
 import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
