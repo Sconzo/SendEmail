@@ -17,5 +17,5 @@ public interface MessageTemplateService {
 
     void deleteMessageTemplate(UUID uuid);
 
-    String viewFormattedMessage(UUID uuid);
+    String viewFormattedMessage();
 }

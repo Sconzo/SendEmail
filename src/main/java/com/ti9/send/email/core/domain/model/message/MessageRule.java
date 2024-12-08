@@ -56,6 +56,7 @@ public class MessageRule extends UpdatableBaseAudit {
     private List<PaymentStatusEnum> docStatus;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private StatusEnum status;
 
     @Column(name = "include_attachments")

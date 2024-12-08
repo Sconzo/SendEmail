@@ -1,6 +1,6 @@
 package com.ti9.send.email.core.infrastructure.adapter.out.repository.document;
 
-import com.ti9.send.email.core.domain.dto.document.PlaceholderDataDTO;
+import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -20,9 +19,9 @@ public class CreJdbcRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<PlaceholderDataDTO> findCreByDocType(
-            Set<String> docTypeList,
-            Set<PaymentStatusEnum> paymentStatusEnumSet
+    public List<DocumentDTO> findCreByDocType(
+            List<String> docTypeList,
+            List<PaymentStatusEnum> paymentStatusEnumSet
     ) {
         String sql = """
             SELECT 
@@ -34,7 +33,9 @@ public class CreJdbcRepository {
                 cre.data_emissao,
                 cre.data_vencimento,
                 cre.valor_aberto,
-                cre.valor_documento 
+                cre.valor_documento,
+                CURRENT_DATE - cre.data_emissao AS dias_emissao,
+                CURRENT_DATE - cre.data_vencimento AS dias_vencimento
             FROM cre cre
             INNER JOIN cfr cfr ON cfr.id = cre.cliente_id
             WHERE cre.doc_type IN (:docType)
@@ -47,7 +48,7 @@ public class CreJdbcRepository {
 
         NamedParameterJdbcTemplate namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
         return namedJdbcTemplate.query(sql, parameters, (rs, rowNum) -> {
-            return new PlaceholderDataDTO(
+            return new DocumentDTO(
                     rs.getObject("id", UUID.class),
                     rs.getString("doc_type"),
                     rs.getString("nome"),
@@ -56,7 +57,9 @@ public class CreJdbcRepository {
                     rs.getDate("data_emissao").toLocalDate(),
                     rs.getDate("data_vencimento").toLocalDate(),
                     rs.getBigDecimal("valor_aberto"),
-                    rs.getBigDecimal("valor_documento")
+                    rs.getBigDecimal("valor_documento"),
+                    rs.getShort("dias_emissao"),
+                    rs.getShort("dias_vencimento")
             );
         });
     }
