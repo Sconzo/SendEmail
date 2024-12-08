@@ -6,15 +6,16 @@ import com.ti9.send.email.core.domain.model.message.template.enums.RecipientType
 import java.util.List;
 import java.util.UUID;
 
-public record CreateMessageTemplateRequest(
+public record MessageTemplateRequest(
+        UUID messageRuleId,
         ActionEnum action,
         UUID senderId,
         RecipientTypeEnum recipientType,
-        String otherRecipients,
-        String answerTo,
-        List<String> accountsInCopy,
-        List<String> blindAccountsInCopy,
+        String replyTO,
+        //String otherRecipients,
+        List<String> cc,
+        List<String> cco,
         String subject,
-        String messageContent
+        String body
 ) {
 }

@@ -3,8 +3,8 @@ package com.ti9.send.email.core.infrastructure.adapter.in.controller;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.ti9.send.email.core.domain.dto.DataListWrapper;
 import com.ti9.send.email.core.domain.dto.DataWrapper;
-import com.ti9.send.email.core.domain.dto.message.MessageRequest;
-import com.ti9.send.email.core.domain.dto.message.MessageDTO;
+import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleRequest;
+import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleDTO;
 import com.ti9.send.email.core.domain.dto.message.SummaryMessageDTO;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
 import lombok.AllArgsConstructor;
@@ -13,18 +13,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/message")
+@RequestMapping("/message-rule")
 @AllArgsConstructor
-public class MessageController {
+public class MessageRuleController {
 
     private final MessageRuleService messageRuleService;
 
     @PostMapping()
-    public DataWrapper<MessageDTO> createMessage(
+    public DataWrapper<MessageRuleDTO> createMessage(
             @RequestHeader String authorization,
-            @RequestBody MessageRequest request
+            @RequestBody MessageRuleRequest request
     ) {
-        DataWrapper<MessageDTO> dataWrapper = messageRuleService.createMessage(request);
+        DataWrapper<MessageRuleDTO> dataWrapper = messageRuleService.createMessage(request);
         dataWrapper.setMessage("Created successfully.");
         dataWrapper.setStatus(HTTPResponse.SC_OK);
         return dataWrapper;
@@ -41,34 +41,34 @@ public class MessageController {
     }
 
     @GetMapping("{uuid}")
-    public DataWrapper<MessageDTO> getMessage(
+    public DataWrapper<MessageRuleDTO> getMessage(
             @RequestHeader String authorization,
             @PathVariable UUID uuid
     ) {
-        DataWrapper<MessageDTO> dataWrapper = messageRuleService.getMessage(uuid);
+        DataWrapper<MessageRuleDTO> dataWrapper = messageRuleService.getMessage(uuid);
         dataWrapper.setMessage("Success.");
         dataWrapper.setStatus(HTTPResponse.SC_OK);
         return dataWrapper;
     }
 
     @PatchMapping("/{uuid}")
-    public DataWrapper<MessageDTO> updateMessage(
+    public DataWrapper<MessageRuleDTO> updateMessage(
             @RequestHeader String authorization,
             @PathVariable UUID uuid,
-            @RequestBody MessageRequest request
+            @RequestBody MessageRuleRequest request
     ) {
-        DataWrapper<MessageDTO> dataWrapper = messageRuleService.updateMessage(uuid, request);
+        DataWrapper<MessageRuleDTO> dataWrapper = messageRuleService.updateMessage(uuid, request);
         dataWrapper.setMessage("Updated successfully.");
         dataWrapper.setStatus(HTTPResponse.SC_OK);
         return dataWrapper;
     }
 
     @DeleteMapping("/{uuid}")
-    public DataWrapper<MessageDTO> deleteMessage(
+    public DataWrapper<MessageRuleDTO> deleteMessage(
             @RequestHeader String authorization,
             @PathVariable UUID uuid
     ) {
-        DataWrapper<MessageDTO> dataWrapper = new DataWrapper<>();
+        DataWrapper<MessageRuleDTO> dataWrapper = new DataWrapper<>();
         messageRuleService.deleteMessage(uuid);
         dataWrapper.setMessage("Successfully deleted.");
         dataWrapper.setStatus(HTTPResponse.SC_OK);

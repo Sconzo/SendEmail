@@ -1,6 +1,6 @@
-package com.ti9.send.email.core.infrastructure.adapter.out.repository.message;
+package com.ti9.send.email.core.infrastructure.adapter.out.repository.message.rule;
 
-import com.ti9.send.email.core.application.port.out.message.MessageRepository;
+import com.ti9.send.email.core.application.port.out.message.rule.MessageRuleRepository;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
 import org.springframework.stereotype.Repository;
 
@@ -9,11 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public class MessageRepositoryImpl implements MessageRepository {
+public class MessageRuleRepositoryImpl implements MessageRuleRepository {
 
-    private final JpaMessageRepository jpaRepository;
+    private final JpaMessageRuleRepository jpaRepository;
 
-    public MessageRepositoryImpl(JpaMessageRepository jpaRepository) {
+    public MessageRuleRepositoryImpl(JpaMessageRuleRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 

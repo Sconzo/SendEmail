@@ -1,6 +1,10 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.controller;
 
-import com.ti9.send.email.core.domain.dto.message.template.CreateMessageTemplateRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.ti9.send.email.core.domain.dto.DataWrapper;
+import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleDTO;
+import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateDTO;
+import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateRequest;
 import com.ti9.send.email.core.domain.service.message.template.MessageTemplateService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +19,14 @@ public class MessageTemplateController {
     private final MessageTemplateService messageTemplateService;
 
     @PostMapping()
-    public void createMessageTemplate(
+    public DataWrapper<MessageTemplateDTO> createMessageTemplate(
             @RequestHeader String authorization,
-            @RequestBody CreateMessageTemplateRequest request
+            @RequestBody MessageTemplateRequest request
     ) {
-        messageTemplateService.createMessageTemplate(request);
+        DataWrapper<MessageTemplateDTO> dataWrapper = messageTemplateService.createMessageTemplate(request);
+        dataWrapper.setMessage("Created successfully.");
+        dataWrapper.setStatus(HTTPResponse.SC_OK);
+        return dataWrapper;
     }
 
     @GetMapping("/list")
@@ -29,7 +36,7 @@ public class MessageTemplateController {
         messageTemplateService.listMessageTemplates();
     }
 
-    @GetMapping("{uuid}")
+    @GetMapping("/{uuid}")
     public void getMessageTemplate(
             @RequestHeader String authorization,
             @PathVariable UUID uuid
