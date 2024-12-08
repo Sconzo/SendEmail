@@ -1,6 +1,7 @@
 package com.ti9.send.email.core.domain.service.message.template;
 
 import com.ti9.send.email.core.domain.dto.DataWrapper;
+import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateDTO;
 import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateRequest;
 
@@ -17,5 +18,5 @@ public interface MessageTemplateService {
 
     void deleteMessageTemplate(UUID uuid);
 
-    String viewFormattedMessage();
+    String formatBodyMessage(DocumentDTO documentDTO, String body);
 }

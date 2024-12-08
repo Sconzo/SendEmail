@@ -6,6 +6,7 @@ import com.ti9.send.email.core.domain.model.message.enums.BaseDateEnum;
 import com.ti9.send.email.core.domain.model.message.enums.DateRuleEnum;
 import com.ti9.send.email.core.domain.service.document.DocumentService;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
+import com.ti9.send.email.core.domain.service.message.template.MessageTemplateService;
 import com.ti9.send.email.core.infrastructure.adapter.utils.DateUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -20,10 +21,12 @@ import java.util.Objects;
 public class EmailScheduler {
 
     private final MessageRuleService messageRuleService;
+    private final MessageTemplateService messageTemplateService;
     private final DocumentService documentService;
 
-    public EmailScheduler(MessageRuleService messageRuleService, DocumentService documentService) {
+    public EmailScheduler(MessageRuleService messageRuleService, MessageTemplateService messageTemplateService, DocumentService documentService) {
         this.messageRuleService = messageRuleService;
+        this.messageTemplateService = messageTemplateService;
         this.documentService = documentService;
     }
 
@@ -54,11 +57,11 @@ public class EmailScheduler {
                                         DateUtils.getBrazilianHolidays())
                                 )
                         ){
-                            System.out.println("Deve mandar email -> " + document.document());
+                            shouldSendEmail(messageRule, document);
                         }
                     } else if (Objects.equals(dateRule, DateRuleEnum.DIAS_CORRIDOS)) {
                         if (messageRule.getSelectedDay().contains(document.calendarDayDifferenceIssueDate())){
-                            System.out.println("Deve mandar email -> " + document.document());
+                            shouldSendEmail(messageRule, document);
                         }
                     }
 
@@ -73,20 +76,22 @@ public class EmailScheduler {
                                         DateUtils.getBrazilianHolidays())
                                 )
                         ){
-                            System.out.println("Deve mandar email -> " + document.document());
+                            shouldSendEmail(messageRule, document);
                         }
                     } else if (Objects.equals(dateRule, DateRuleEnum.DIAS_CORRIDOS)) {
                         if (messageRule.getSelectedDay().contains(document.calendarDayDifferenceIssueDate())){
-                            System.out.println("Deve mandar email -> " + document.document());
+                            shouldSendEmail(messageRule, document);
                         }
                     }
                 }
             }
-
-
         }
-
         System.out.println("teste");
+    }
+
+    private void shouldSendEmail(MessageRule messageRule, DocumentDTO document) {
+        String formatBodyMessage = messageTemplateService.formatBodyMessage(document, messageRule.getMessageTemplate().getBody());
+        System.out.println("Deve mandar email -> " + formatBodyMessage);
     }
 }
 
