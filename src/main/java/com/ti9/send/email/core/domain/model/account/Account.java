@@ -29,9 +29,11 @@ public class Account extends UpdatableBaseAudit {
     private String name;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private ProviderEnum provider;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private StatusEnum status;
 
     @Column

@@ -1,11 +1,14 @@
 package com.ti9.send.email.core.domain.service.message.template;
 
-import com.ti9.send.email.core.domain.dto.message.template.CreateMessageTemplateRequest;
+import com.ti9.send.email.core.domain.dto.DataWrapper;
+import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
+import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateDTO;
+import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateRequest;
 
 import java.util.UUID;
 
 public interface MessageTemplateService {
-    void createMessageTemplate(CreateMessageTemplateRequest request);
+    DataWrapper<MessageTemplateDTO> createMessageTemplate(MessageTemplateRequest request);
 
     void listMessageTemplates();
 
@@ -14,4 +17,6 @@ public interface MessageTemplateService {
     void updateMessageTemplate(UUID uuid);
 
     void deleteMessageTemplate(UUID uuid);
+
+    String formatBodyMessage(DocumentDTO documentDTO, String body);
 }

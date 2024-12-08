@@ -1,6 +1,6 @@
 package com.ti9.send.email.core.domain.model.message;
 
-import com.ti9.send.email.core.domain.dto.message.MessageRequest;
+import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleRequest;
 import com.ti9.send.email.core.domain.model.UpdatableBaseAudit;
 import com.ti9.send.email.core.domain.model.enums.StatusEnum;
 import com.ti9.send.email.core.domain.model.message.enums.BaseDateEnum;
@@ -33,9 +33,11 @@ public class MessageRule extends UpdatableBaseAudit {
     private String name;
 
     @Column(name = "date_rule")
+    @Enumerated(EnumType.STRING)
     private DateRuleEnum dateRule;
 
     @Column(name = "date_index")
+    @Enumerated(EnumType.STRING)
     private BaseDateEnum dateIndex;
 
     @Column(name = "selected_times")
@@ -54,6 +56,7 @@ public class MessageRule extends UpdatableBaseAudit {
     private List<PaymentStatusEnum> docStatus;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private StatusEnum status;
 
     @Column(name = "include_attachments")
@@ -73,15 +76,15 @@ public class MessageRule extends UpdatableBaseAudit {
         this.status = status;
     }
 
-    public void update(MessageRequest messageRequest) {
-        this.name = messageRequest.name();
-        this.dateRule = messageRequest.dateRule();
-        this.dateIndex = messageRequest.dateBase();
-        this.selectedTime = messageRequest.sendingTimeList();
-        this.selectedDay = messageRequest.sendingDayList();
-        this.docType = messageRequest.docTypeList();
-        this.docStatus = messageRequest.paymentStatusList();
-        this.status = messageRequest.status();
-        this.includeAttachment = messageRequest.sendAttachments();
+    public void update(MessageRuleRequest messageRuleRequest) {
+        this.name = messageRuleRequest.name();
+        this.dateRule = messageRuleRequest.dateRule();
+        this.dateIndex = messageRuleRequest.dateBase();
+        this.selectedTime = messageRuleRequest.sendingTimeList();
+        this.selectedDay = messageRuleRequest.sendingDayList();
+        this.docType = messageRuleRequest.docTypeList();
+        this.docStatus = messageRuleRequest.paymentStatusList();
+        this.status = messageRuleRequest.status();
+        this.includeAttachment = messageRuleRequest.sendAttachments();
     }
 }
