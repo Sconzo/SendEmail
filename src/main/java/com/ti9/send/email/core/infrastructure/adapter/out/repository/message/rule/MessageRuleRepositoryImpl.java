@@ -36,4 +36,9 @@ public class MessageRuleRepositoryImpl implements MessageRuleRepository {
     public List<MessageRule> list() {
         return jpaRepository.findAllWithoutRelations();
     }
+
+    @Override
+    public List<MessageRule> findActiveTemplates(String currentHourMinute) {
+       return jpaRepository.findActiveTemplates(currentHourMinute);
+    }
 }

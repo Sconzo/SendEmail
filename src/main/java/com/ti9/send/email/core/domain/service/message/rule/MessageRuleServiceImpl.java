@@ -20,11 +20,9 @@ import java.util.UUID;
 public class MessageRuleServiceImpl implements MessageRuleService {
 
     private final MessageRuleRepository repository;
-    private final JpaMessageRuleRepository jpaRepository;
 
-    public MessageRuleServiceImpl(MessageRuleRepository repository, JpaMessageRuleRepository jpaRepository) {
+    public MessageRuleServiceImpl(MessageRuleRepository repository) {
         this.repository = repository;
-        this.jpaRepository = jpaRepository;
     }
 
     @Override
@@ -65,6 +63,6 @@ public class MessageRuleServiceImpl implements MessageRuleService {
 
     @Override
     public List<MessageRule> getActiveRules(String currentHourMinute){
-        return jpaRepository.findActiveTemplates(currentHourMinute);
+        return repository.findActiveTemplates(currentHourMinute);
     }
 }
