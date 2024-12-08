@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public record PlaceholderDataDTO(
+public record DocumentDTO(
         UUID creId,
         String docType,
         String name,
@@ -13,6 +13,8 @@ public record PlaceholderDataDTO(
         LocalDate issueDate,
         LocalDate dueDate,
         BigDecimal documentAmount,
-        BigDecimal outstandingAmount
+        BigDecimal outstandingAmount,
+        Short calendarDayDifferenceIssueDate,
+        Short calendarDayDifferenceDueDate
 ){
 }

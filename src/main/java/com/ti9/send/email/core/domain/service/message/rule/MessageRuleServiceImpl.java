@@ -9,8 +9,10 @@ import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleRequest;
 import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleDTO;
 import com.ti9.send.email.core.domain.dto.message.SummaryMessageDTO;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
+import com.ti9.send.email.core.infrastructure.adapter.out.repository.message.rule.JpaMessageRuleRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,9 +20,11 @@ import java.util.UUID;
 public class MessageRuleServiceImpl implements MessageRuleService {
 
     private final MessageRuleRepository repository;
+    private final JpaMessageRuleRepository jpaRepository;
 
-    public MessageRuleServiceImpl(MessageRuleRepository repository) {
+    public MessageRuleServiceImpl(MessageRuleRepository repository, JpaMessageRuleRepository jpaRepository) {
         this.repository = repository;
+        this.jpaRepository = jpaRepository;
     }
 
     @Override
@@ -57,5 +61,10 @@ public class MessageRuleServiceImpl implements MessageRuleService {
     @Override
     public void deleteMessage(UUID uuid) {
         repository.deleteById(uuid);
+    }
+
+    @Override
+    public List<MessageRule> getActiveRules(String currentHourMinute){
+        return jpaRepository.findActiveTemplates(currentHourMinute);
     }
 }

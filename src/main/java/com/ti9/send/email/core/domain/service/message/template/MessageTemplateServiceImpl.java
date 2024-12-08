@@ -4,7 +4,7 @@ import com.ti9.send.email.core.application.exceptions.InvalidInputException;
 import com.ti9.send.email.core.application.mapper.message.MessageTemplateMapper;
 import com.ti9.send.email.core.application.port.out.message.template.MessageTemplateRepository;
 import com.ti9.send.email.core.domain.dto.DataWrapper;
-import com.ti9.send.email.core.domain.dto.document.PlaceholderDataDTO;
+import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateDTO;
 import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateRequest;
 import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
@@ -43,7 +43,7 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
 
     @Override
     public void getMessageTemplate(UUID uuid) {
-        viewFormattedMessage(uuid);
+        viewFormattedMessage();
     }
 
     @Override
@@ -57,8 +57,8 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
     }
 
     @Override
-    public String viewFormattedMessage(UUID templateId) {
-        MessageTemplate messageTemplate = repository.findById(templateId)
+    public String viewFormattedMessage() {
+        MessageTemplate messageTemplate = repository.findById(UUID.randomUUID())
                 .orElseThrow(() -> new InvalidInputException("Message not found"));
 
         String body = messageTemplate.getBody();
@@ -67,30 +67,30 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
         Set<String> docTypeSet = messageTemplate.getMessageRuleList().stream().map(MessageRule::getDocType).flatMap(Collection::stream).collect(Collectors.toSet());
         Set<PaymentStatusEnum> docStatusSet = messageTemplate.getMessageRuleList().stream().map(MessageRule::getDocStatus).flatMap(Collection::stream).collect(Collectors.toSet());
 
-        List<PlaceholderDataDTO> placeholderDataDTOList = documentService.getDocumentPlaceholderFromDocType(
-                docTypeSet,
-                docStatusSet
+        List<DocumentDTO> documentDTOList = documentService.getDocumentPlaceholderFromDocType(
+                (List<String>) docTypeSet,
+                (List<PaymentStatusEnum>) docStatusSet
         );
 
-        Map<String, List<PlaceholderDataDTO>> placeHolderMappedByDocType = placeholderDataDTOList.stream()
-                .collect(Collectors.groupingBy(PlaceholderDataDTO::docType));
+        Map<String, List<DocumentDTO>> placeHolderMappedByDocType = documentDTOList.stream()
+                .collect(Collectors.groupingBy(DocumentDTO::docType));
 
 
         for (MessageRule messageRule : messageTemplate.getMessageRuleList()) {
             for (String docType : messageRule.getDocType()) {
-                for (PlaceholderDataDTO placeholderDataDTO : placeHolderMappedByDocType.get(docType)) {
+                for (DocumentDTO documentDTO : placeHolderMappedByDocType.get(docType)) {
                     Map<String, String> replacements = Map.of(
-                            "{{NOME_CLIENTE}}", placeholderDataDTO.name(),
-                            "{{NOME_CONTATO}}", placeholderDataDTO.billingContact(),
-                            "{{NUMERO_DOCUMENTO}}", placeholderDataDTO.document(),
-                            "{{DATA_EMISSAO}}", DateUtils.formatDateToString(placeholderDataDTO.issueDate()),
-                            "{{DATA_VENCIMENTO}}", DateUtils.formatDateToString(placeholderDataDTO.dueDate()),
-                            "{{DIAS_PARA_VENCIMENTO}}", String.valueOf(ChronoUnit.DAYS.between(placeholderDataDTO.dueDate(), LocalDate.now())),
-                            "{{VALOR_ABERTO}}", placeholderDataDTO.outstandingAmount().toString(),
-                            "{{VALOR_DOCUMENTO}}", placeholderDataDTO.documentAmount().toString()
+                            "{{NOME_CLIENTE}}", documentDTO.name(),
+                            "{{NOME_CONTATO}}", documentDTO.billingContact(),
+                            "{{NUMERO_DOCUMENTO}}", documentDTO.document(),
+                            "{{DATA_EMISSAO}}", DateUtils.formatDateToString(documentDTO.issueDate()),
+                            "{{DATA_VENCIMENTO}}", DateUtils.formatDateToString(documentDTO.dueDate()),
+                            "{{DIAS_PARA_VENCIMENTO}}", String.valueOf(ChronoUnit.DAYS.between(documentDTO.dueDate(), LocalDate.now())),
+                            "{{VALOR_ABERTO}}", documentDTO.outstandingAmount().toString(),
+                            "{{VALOR_DOCUMENTO}}", documentDTO.documentAmount().toString()
                     );
                     String bodyFormatted = replacePlaceholders(body, replacements);
-                    bodyFormattedMappedByCreId.put(placeholderDataDTO.creId(), bodyFormatted);
+                    bodyFormattedMappedByCreId.put(documentDTO.creId(), bodyFormatted);
                 }
 
             }
@@ -98,7 +98,7 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
 
 
 
-        return bodyFormattedMappedByCreId.get(templateId);
+        return bodyFormattedMappedByCreId.get(UUID.randomUUID());
     }
 
 

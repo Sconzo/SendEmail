@@ -18,4 +18,9 @@ public interface JpaMessageRuleRepository extends JpaRepository<MessageRule, UUI
             " m.status" +
             " ) from MessageRule m")
     List<MessageRule> findAllWithoutRelations();
+
+    @Query(value = "SELECT * FROM ecob_msg mr " +
+            " WHERE mr.status = 'ACTIVE' " +
+            " AND :currentHourMinute = ANY(mr.selected_times)", nativeQuery = true)
+    List<MessageRule> findActiveTemplates(String currentHourMinute);
 }

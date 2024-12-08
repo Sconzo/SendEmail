@@ -1,13 +1,12 @@
 package com.ti9.send.email.core.domain.service.document;
 
-import com.ti9.send.email.core.domain.dto.document.PlaceholderDataDTO;
+import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
 import com.ti9.send.email.core.infrastructure.adapter.out.repository.document.CreJdbcRepository;
 import com.ti9.send.email.core.infrastructure.adapter.out.repository.document.JpaCreRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class DocumentServiceImpl implements DocumentService{
@@ -21,9 +20,9 @@ public class DocumentServiceImpl implements DocumentService{
     }
 
     @Override
-    public List<PlaceholderDataDTO> getDocumentPlaceholderFromDocType(
-            Set<String> docTypeList,
-            Set<PaymentStatusEnum> paymentStatusEnumSet
+    public List<DocumentDTO> getDocumentPlaceholderFromDocType(
+            List<String> docTypeList,
+            List<PaymentStatusEnum> paymentStatusEnumSet
     ) {
         return jdbcRepository.findCreByDocType(
                 docTypeList,
