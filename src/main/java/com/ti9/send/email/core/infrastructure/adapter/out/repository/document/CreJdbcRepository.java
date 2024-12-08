@@ -44,7 +44,10 @@ public class CreJdbcRepository {
 
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("docType", docTypeList);
-        parameters.addValue("paymentStatusEnumSet", paymentStatusEnumSet.stream().map(PaymentStatusEnum::name).toList());
+        parameters.addValue(
+                "paymentStatusEnumSet",
+                paymentStatusEnumSet.stream().map(PaymentStatusEnum::name).toList()
+        );
 
         NamedParameterJdbcTemplate namedJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
         return namedJdbcTemplate.query(sql, parameters, (rs, rowNum) -> {

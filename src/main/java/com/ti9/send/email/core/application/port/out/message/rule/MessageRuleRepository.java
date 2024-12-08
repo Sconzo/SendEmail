@@ -8,4 +8,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MessageRuleRepository extends GenericRepository<MessageRule, UUID> {
+    List<MessageRule> findActiveTemplates(String currentHourMinute);
 }

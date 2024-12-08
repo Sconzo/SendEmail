@@ -1,8 +1,10 @@
 package com.ti9.send.email.core.infrastructure.adapter.out.repository.document;
 
 import com.ti9.send.email.core.application.port.out.document.CreRepository;
+import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.model.account.Account;
 import com.ti9.send.email.core.domain.model.document.Cre;
+import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,8 +16,14 @@ public class CreRepositoryImpl implements CreRepository {
 
     private final JpaCreRepository jpaRepository;
 
-    public CreRepositoryImpl(JpaCreRepository jpaRepository) {
+    private final CreJdbcRepository jdbcRepository;
+
+    public CreRepositoryImpl(
+            JpaCreRepository jpaRepository,
+            CreJdbcRepository jdbcRepository
+    ) {
         this.jpaRepository = jpaRepository;
+        this.jdbcRepository = jdbcRepository;
     }
 
     @Override
@@ -38,4 +46,16 @@ public class CreRepositoryImpl implements CreRepository {
         return jpaRepository.findAll();
     }
 
+    @Override
+    public List<DocumentDTO> findCreByDocType(
+            List<String> docTypeList,
+            List<PaymentStatusEnum> paymentStatusEnumSet
+    ) {
+        return jdbcRepository.findCreByDocType(docTypeList, paymentStatusEnumSet);
+    }
+
+    @Override
+    public List<String> findDistinctDocTypes() {
+       return jpaRepository.findDistinctDocTypes();
+    }
 }
