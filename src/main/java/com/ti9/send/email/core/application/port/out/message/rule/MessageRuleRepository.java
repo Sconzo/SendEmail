@@ -9,4 +9,6 @@ import java.util.UUID;
 
 public interface MessageRuleRepository extends GenericRepository<MessageRule, UUID> {
     List<MessageRule> findActiveTemplates(String currentHourMinute);
+
+    void setTemplateId(UUID templateId, UUID messageRuleId);
 }
