@@ -65,4 +65,9 @@ public class MessageRuleServiceImpl implements MessageRuleService {
     public List<MessageRule> getActiveRules(String currentHourMinute){
         return repository.findActiveTemplates(currentHourMinute);
     }
+
+    @Override
+    public void setTemplateId(UUID templateId, UUID messageRuleId) {
+        repository.setTemplateId(templateId, messageRuleId);
+    }
 }

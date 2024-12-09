@@ -7,6 +7,7 @@ import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateDTO;
 import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateRequest;
 import com.ti9.send.email.core.domain.service.document.DocumentService;
+import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
 import com.ti9.send.email.core.infrastructure.adapter.utils.DateUtils;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +19,19 @@ import java.util.*;
 public class MessageTemplateServiceImpl implements MessageTemplateService{
 
     private final MessageTemplateRepository repository;
-    private final DocumentService documentService;
+    private final MessageRuleService messageRuleService;
 
-    public MessageTemplateServiceImpl(MessageTemplateRepository repository, DocumentService documentService) {
+    public MessageTemplateServiceImpl(MessageTemplateRepository repository, MessageRuleService messageRuleService) {
         this.repository = repository;
-        this.documentService = documentService;
+        this.messageRuleService = messageRuleService;
     }
 
     @Override
     public DataWrapper<MessageTemplateDTO> createMessageTemplate(MessageTemplateRequest request) {
+        MessageTemplateDTO messageTemplateDTO = MessageTemplateMapper.toDTO(repository.save(MessageTemplateMapper.toEntity(request)));
 
-        return new DataWrapper<>(MessageTemplateMapper.toDTO(repository.save(MessageTemplateMapper.toEntity(request))));
+        messageRuleService.setTemplateId(messageTemplateDTO.id(), request.messageRuleId());
+        return new DataWrapper<>(messageTemplateDTO);
     }
 
     @Override

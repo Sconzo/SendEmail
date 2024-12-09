@@ -30,7 +30,7 @@ public class EmailScheduler {
         this.documentService = documentService;
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    //@Scheduled(cron = "0 * * * * *")
     public void sendEmail() {
         System.out.println("Tarefa executada: " + System.currentTimeMillis());
         LocalTime currentTime = LocalTime.now();
