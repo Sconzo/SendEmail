@@ -1,6 +1,7 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.controller;
 
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.ti9.send.email.core.domain.dto.DataListWrapper;
 import com.ti9.send.email.core.domain.dto.DataWrapper;
 import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleDTO;
 import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateDTO;
@@ -30,33 +31,35 @@ public class MessageTemplateController {
     }
 
     @GetMapping("/list")
-    public void listMessageTemplates(
+    public DataListWrapper<MessageTemplateDTO> listMessageTemplates(
             @RequestHeader String authorization
     ) {
-        messageTemplateService.listMessageTemplates();
+        DataListWrapper<MessageTemplateDTO> dataListWrapper = messageTemplateService.listMessageTemplates();
+        dataListWrapper.setMessage("Listed successfully.");
+        dataListWrapper.setStatus(HTTPResponse.SC_OK);
+        return dataListWrapper;
     }
 
     @GetMapping("/{uuid}")
-    public void getMessageTemplate(
+    public DataWrapper<MessageTemplateDTO> getMessageTemplate(
             @RequestHeader String authorization,
             @PathVariable UUID uuid
     ) {
-        messageTemplateService.getMessageTemplate(uuid);
+        DataWrapper<MessageTemplateDTO> dataWrapper = messageTemplateService.getMessageTemplate(uuid);
+        dataWrapper.setMessage("Found successfully.");
+        dataWrapper.setStatus(HTTPResponse.SC_OK);
+        return dataWrapper;
     }
 
     @PatchMapping("/{uuid}")
-    public void updateMessageTemplate(
+    public DataWrapper<MessageTemplateDTO> updateMessageTemplate(
             @RequestHeader String authorization,
+            @RequestBody MessageTemplateRequest request,
             @PathVariable UUID uuid
     ) {
-        messageTemplateService.updateMessageTemplate(uuid);
-    }
-
-    @DeleteMapping("/{uuid}")
-    public void deleteMessageTemplate(
-            @RequestHeader String authorization,
-            @PathVariable UUID uuid
-    ) {
-        messageTemplateService.deleteMessageTemplate(uuid);
+        DataWrapper<MessageTemplateDTO> dataWrapper = messageTemplateService.updateMessageTemplate(uuid, request);
+        dataWrapper.setMessage("Updated successfully.");
+        dataWrapper.setStatus(HTTPResponse.SC_OK);
+        return dataWrapper;
     }
 }

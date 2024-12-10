@@ -57,4 +57,10 @@ public class Account extends UpdatableBaseAudit {
         this.provider = provider;
         this.status = status;
     }
+
+    public Account(
+            UUID id
+    ) {
+        this.id = id;
+    }
 }
