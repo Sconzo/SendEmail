@@ -69,10 +69,12 @@ public class MessageRule extends UpdatableBaseAudit {
     public MessageRule(
             UUID id,
             String name,
+            List<Short> selectedDayList,
             StatusEnum status
     ) {
         this.id = id;
         this.name = name;
+        this.selectedDay = selectedDayList;
         this.status = status;
     }
 

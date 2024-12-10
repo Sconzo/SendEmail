@@ -24,4 +24,6 @@ public interface MessageRuleService {
     List<MessageRule> getActiveRules(String currentHourMinute);
 
     void setTemplateId(UUID templateId, UUID messageRuleId);
+
+    void changeStatus(UUID uuid);
 }

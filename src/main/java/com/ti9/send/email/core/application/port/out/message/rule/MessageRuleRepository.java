@@ -11,4 +11,6 @@ public interface MessageRuleRepository extends GenericRepository<MessageRule, UU
     List<MessageRule> findActiveTemplates(String currentHourMinute);
 
     void setTemplateId(UUID templateId, UUID messageRuleId);
+
+    void changeStatus(UUID uuid);
 }
