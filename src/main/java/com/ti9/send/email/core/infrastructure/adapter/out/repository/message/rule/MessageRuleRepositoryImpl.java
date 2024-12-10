@@ -46,4 +46,9 @@ public class MessageRuleRepositoryImpl implements MessageRuleRepository {
     public void setTemplateId(UUID templateId, UUID messageRuleId) {
         jpaRepository.setTemplateId(templateId, messageRuleId);
     }
+
+    @Override
+    public void changeStatus(UUID uuid) {
+        jpaRepository.changeStatus(uuid);
+    }
 }

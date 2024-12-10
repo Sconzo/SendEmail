@@ -49,8 +49,9 @@ public class MessageRuleServiceImpl implements MessageRuleService {
     public DataWrapper<MessageRuleDTO> updateMessage(UUID uuid, MessageRuleRequest request) {
         Optional<MessageRule> messageOptional = repository.findById(uuid);
         if (messageOptional.isPresent()) {
-            messageOptional.get().update(request);
-            return new DataWrapper<>(MessageRuleMapper.toDTO(repository.save(messageOptional.get())));
+            MessageRule messageRule = messageOptional.get();
+            messageRule.update(request);
+            return new DataWrapper<>(MessageRuleMapper.toDTO(repository.save(messageRule)));
         } else {
             throw new ResourceNotFoundException("Message with id " + uuid + " not found.");
         }
@@ -69,5 +70,10 @@ public class MessageRuleServiceImpl implements MessageRuleService {
     @Override
     public void setTemplateId(UUID templateId, UUID messageRuleId) {
         repository.setTemplateId(templateId, messageRuleId);
+    }
+
+    @Override
+    public void changeStatus(UUID uuid) {
+        repository.changeStatus(uuid);
     }
 }

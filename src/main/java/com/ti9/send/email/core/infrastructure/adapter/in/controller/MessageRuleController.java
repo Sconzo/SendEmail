@@ -75,4 +75,16 @@ public class MessageRuleController {
         return dataWrapper;
 
     }
+
+    @PatchMapping("/status/{uuid}")
+    public DataWrapper<MessageRuleDTO> changeStatus(
+            @RequestHeader String authorization,
+            @PathVariable UUID uuid
+    ) {
+        DataWrapper<MessageRuleDTO> dataWrapper = new DataWrapper<>();
+        messageRuleService.changeStatus(uuid);
+        dataWrapper.setMessage("Updated successfully.");
+        dataWrapper.setStatus(HTTPResponse.SC_OK);
+        return dataWrapper;
+    }
 }

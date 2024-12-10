@@ -17,6 +17,7 @@ public interface JpaMessageRuleRepository extends JpaRepository<MessageRule, UUI
     @Query("select new com.ti9.send.email.core.domain.model.message.MessageRule(" +
             " m.id," +
             " m.name," +
+            " m.selectedDay," +
             " m.status" +
             " ) from MessageRule m")
     List<MessageRule> findAllWithoutRelations();
@@ -32,4 +33,14 @@ public interface JpaMessageRuleRepository extends JpaRepository<MessageRule, UUI
             " SET model_id = :templateId " +
             " WHERE id = :messageRuleId", nativeQuery = true)
     void setTemplateId(UUID templateId, UUID messageRuleId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE ecob_msg " +
+            " SET status = CASE " +
+            " WHEN status = 'ACTIVE' THEN 'INACTIVE' " +
+            " WHEN status = 'INACTIVE' THEN 'ACTIVE' " +
+            " END" +
+            " WHERE id = :uuid", nativeQuery = true)
+    void changeStatus(UUID uuid);
 }
