@@ -1,5 +1,6 @@
 package com.ti9.send.email.core.domain.model.message.template;
 
+import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateRequest;
 import com.ti9.send.email.core.domain.model.UpdatableBaseAudit;
 import com.ti9.send.email.core.domain.model.account.Account;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
@@ -54,9 +55,19 @@ public class MessageTemplate extends UpdatableBaseAudit {
     private String subject;
 
     @Column(name = "body_text")
-    private String Body;
+    private String body;
 
     @OneToMany(mappedBy = "messageTemplate", cascade = CascadeType.MERGE, orphanRemoval = true)
     private List<MessageRule> messageRuleList;
 
+    public void update(MessageTemplateRequest request){
+        this.action = request.action();
+        this.account = new Account(request.senderId());
+        this.recipientType = request.recipientType();
+        this.replyTo = request.replyTO();
+        this.cc = request.cc();
+        this.bcc = request.cco();
+        this.subject = request.subject();
+        this.body = request.body();
+    }
 }

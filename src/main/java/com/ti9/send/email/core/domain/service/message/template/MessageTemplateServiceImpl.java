@@ -1,12 +1,15 @@
 package com.ti9.send.email.core.domain.service.message.template;
 
+import com.ti9.send.email.core.application.exceptions.ResourceNotFoundException;
+import com.ti9.send.email.core.application.mapper.message.MessageRuleMapper;
 import com.ti9.send.email.core.application.mapper.message.MessageTemplateMapper;
 import com.ti9.send.email.core.application.port.out.message.template.MessageTemplateRepository;
+import com.ti9.send.email.core.domain.dto.DataListWrapper;
 import com.ti9.send.email.core.domain.dto.DataWrapper;
 import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateDTO;
 import com.ti9.send.email.core.domain.dto.message.template.MessageTemplateRequest;
-import com.ti9.send.email.core.domain.service.document.DocumentService;
+import com.ti9.send.email.core.domain.model.message.template.MessageTemplate;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
 import com.ti9.send.email.core.infrastructure.adapter.utils.DateUtils;
 import org.springframework.stereotype.Service;
@@ -35,23 +38,29 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
     }
 
     @Override
-    public void listMessageTemplates() {
+    public DataListWrapper<MessageTemplateDTO> listMessageTemplates() {
+        return new DataListWrapper<>(repository.list().stream().map(MessageTemplateMapper::toDTO).toList());
 
     }
 
     @Override
-    public void getMessageTemplate(UUID uuid) {
+    public DataWrapper<MessageTemplateDTO> getMessageTemplate(UUID uuid) {
+        return new DataWrapper<>(MessageTemplateMapper.toDTO(repository.findById(uuid).orElseThrow(
+                        () -> new ResourceNotFoundException("Message template with id " + uuid + " not found."))));
     }
 
     @Override
-    public void updateMessageTemplate(UUID uuid) {
-
+    public DataWrapper<MessageTemplateDTO> updateMessageTemplate(UUID uuid, MessageTemplateRequest request) {
+        Optional<MessageTemplate> messageOptional = repository.findById(uuid);
+        if (messageOptional.isPresent()) {
+            MessageTemplate messageTemplate = messageOptional.get();
+            messageTemplate.update(request);
+            return new DataWrapper<>(MessageTemplateMapper.toDTO(repository.save(messageTemplate)));
+        } else {
+            throw new ResourceNotFoundException("Message template with id " + uuid + " not found.");
+        }
     }
 
-    @Override
-    public void deleteMessageTemplate(UUID uuid) {
-
-    }
 
     @Override
     public String formatBodyMessage(DocumentDTO documentDTO, String body) {

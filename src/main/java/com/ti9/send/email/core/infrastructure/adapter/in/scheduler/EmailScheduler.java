@@ -8,7 +8,6 @@ import com.ti9.send.email.core.domain.service.document.DocumentService;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
 import com.ti9.send.email.core.domain.service.message.template.MessageTemplateService;
 import com.ti9.send.email.core.infrastructure.adapter.utils.DateUtils;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
