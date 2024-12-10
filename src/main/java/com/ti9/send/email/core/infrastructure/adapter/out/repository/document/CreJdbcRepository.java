@@ -24,11 +24,11 @@ public class CreJdbcRepository {
             List<PaymentStatusEnum> paymentStatusEnumSet
     ) {
         String sql = """
-            SELECT 
+            SELECT
                 cre.id,
                 cre.doc_type,
-                cfr.nome, 
-                cfr.contato_cobranca, 
+                cfr.nome,
+                cfr.contato_cobranca,
                 cre.documento,
                 cre.data_emissao,
                 cre.data_vencimento,
