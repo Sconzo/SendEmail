@@ -41,4 +41,14 @@ public class MessageRuleRepositoryImpl implements MessageRuleRepository {
     public List<MessageRule> findActiveTemplates(String currentHourMinute) {
        return jpaRepository.findActiveTemplates(currentHourMinute);
     }
+
+    @Override
+    public void setTemplateId(UUID templateId, UUID messageRuleId) {
+        jpaRepository.setTemplateId(templateId, messageRuleId);
+    }
+
+    @Override
+    public void changeStatus(UUID uuid) {
+        jpaRepository.changeStatus(uuid);
+    }
 }

@@ -43,6 +43,7 @@ public class MessageRuleMapper {
        return new SummaryMessageDTO(
                messageRule.getId(),
                messageRule.getName(),
+               messageRule.getSelectedDay(),
                messageRule.getStatus()
        );
     }
