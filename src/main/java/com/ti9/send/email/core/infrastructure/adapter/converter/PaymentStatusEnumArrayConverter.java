@@ -4,27 +4,32 @@ import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Converter
-public class PaymentStatusEnumArrayConverter implements AttributeConverter<List<PaymentStatusEnum>, String[]> {
+public class PaymentStatusEnumArrayConverter implements AttributeConverter<List<PaymentStatusEnum>, String> {
     @Override
-    public String[] convertToDatabaseColumn(List<PaymentStatusEnum> paymentStatusEnumList) {
-        if (paymentStatusEnumList == null || paymentStatusEnumList.isEmpty()) {
+    public String convertToDatabaseColumn(List<PaymentStatusEnum> attribute) {
+        if (attribute == null || attribute.isEmpty()) {
             return null;
         }
-        return paymentStatusEnumList.stream().map(Enum::name).toArray(String[]::new);
+        return attribute.stream()
+                .map(PaymentStatusEnum::name)
+                .reduce((a, b) -> a + "," + b)
+                .orElse("");
     }
 
     @Override
-    public List<PaymentStatusEnum> convertToEntityAttribute(String[] dbData) {
-        if (dbData == null || dbData.length == 0) {
-            return null;
+    public List<PaymentStatusEnum> convertToEntityAttribute(String dbData) {
+        if (dbData == null || dbData.isBlank()) {
+            return new ArrayList<>();
         }
-        return Arrays.stream(dbData)
+        return Arrays.stream(dbData.split(","))
                 .map(PaymentStatusEnum::valueOf)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

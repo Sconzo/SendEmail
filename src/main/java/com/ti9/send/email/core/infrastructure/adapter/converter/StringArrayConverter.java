@@ -9,20 +9,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Converter
-public class StringArrayConverter implements AttributeConverter<List<String>, String[]> {
+public class StringArrayConverter implements AttributeConverter<List<String>, String> {
     @Override
-    public String[] convertToDatabaseColumn(List<String> strings) {
+    public String convertToDatabaseColumn(List<String> strings) {
         if (strings == null || strings.isEmpty()) {
             return null;
         }
-        return strings.stream().map(String::trim).toArray(String[]::new);
+        return String.join(",", strings);
     }
 
     @Override
-    public List<String> convertToEntityAttribute(String[] s) {
-        if (s == null || s.length == 0) {
-            return null;
+    public List<String> convertToEntityAttribute(String dbData) {
+        if (dbData == null || dbData.isBlank()) {
+            return List.of();
         }
-        return Arrays.stream(s).collect(Collectors.toList());
+        return Arrays.stream(dbData.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 }
