@@ -15,6 +15,7 @@ import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
 import com.ti9.send.email.core.domain.service.message.template.MessageTemplateService;
 import com.ti9.send.email.core.infrastructure.adapter.out.sender.Sender;
 import com.ti9.send.email.core.infrastructure.adapter.utils.DateUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -49,7 +50,7 @@ public class NotificationScheduler {
         this.senderList = senderList;
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "${my.cron.expression}")
     public void processMessages() {
         System.out.println("Tarefa executada: " + System.currentTimeMillis());
         LocalTime currentTime = LocalTime.now();
