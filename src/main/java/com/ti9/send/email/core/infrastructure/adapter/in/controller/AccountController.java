@@ -1,7 +1,11 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.controller;
 
 
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.ti9.send.email.core.domain.dto.DataListWrapper;
+import com.ti9.send.email.core.domain.dto.DataWrapper;
 import com.ti9.send.email.core.domain.dto.OAuth2AccessToken;
+import com.ti9.send.email.core.domain.dto.account.AccountResponse;
 import com.ti9.send.email.core.domain.service.account.AccountService;
 import jakarta.mail.*;
 import lombok.AllArgsConstructor;
@@ -116,18 +120,24 @@ public class AccountController {
 
 
     @GetMapping("/list")
-    public void listAccounts(
+    public DataListWrapper<AccountResponse> listAccounts(
             @RequestHeader String authorization
     ) {
-        accountService.listAccounts();
+        DataListWrapper<AccountResponse> dataListWrapper = accountService.listAccounts();
+        dataListWrapper.setMessage("Success.");
+        dataListWrapper.setStatus(HTTPResponse.SC_OK);
+        return dataListWrapper;
     }
 
     @GetMapping("{uuid}")
-    public void getAccount(
+    public DataWrapper<AccountResponse> getAccount(
             @RequestHeader String authorization,
             @PathVariable UUID uuid
     ) {
-        accountService.getAccount(uuid);
+        DataWrapper<AccountResponse> dataWrapper = accountService.getAccount(uuid);
+        dataWrapper.setMessage("Success.");
+        dataWrapper.setStatus(HTTPResponse.SC_OK);
+        return dataWrapper;
     }
 
     @PatchMapping("/{uuid}")

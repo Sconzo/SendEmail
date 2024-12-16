@@ -1,5 +1,8 @@
 package com.ti9.send.email.core.domain.service.account;
 
+import com.ti9.send.email.core.domain.dto.DataListWrapper;
+import com.ti9.send.email.core.domain.dto.DataWrapper;
+import com.ti9.send.email.core.domain.dto.account.AccountResponse;
 import com.ti9.send.email.core.domain.dto.account.AssociateAccountRequest;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,11 +12,11 @@ public interface AccountService {
 
     void associateAccount(AssociateAccountRequest request, MultipartFile file);
 
-    void listAccounts();
+    DataListWrapper<AccountResponse> listAccounts();
 
-    void getAccount(UUID id);
+    DataWrapper<AccountResponse> getAccount(UUID id);
 
-    void updateAccount(UUID id);
+    DataWrapper<AccountResponse> updateAccount(UUID id);
 
-    void deleteAccount(UUID id);
+    DataWrapper<AccountResponse> deleteAccount(UUID id);
 }

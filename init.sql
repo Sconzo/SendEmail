@@ -517,7 +517,7 @@ ALTER TABLE ONLY public.ecob_msg_model
 
 INSERT INTO public.ecob_account (id,name,provider,status,settings,created,updated) VALUES (
 	 '36734e49-c3a2-4caa-b56a-b7233fe4f987'::uuid,
-	 'Barba Account',
+	 'Poly Account',
 	 'GMAIL',
 	 'ACTIVE',
 	 '{"scope": "https://www.googleapis.com/auth/gmail.send https://mail.google.com/", "expires_in": 3599, "token_type": "Bearer", "access_token": "ya29.a0AeDClZA-dAr4yWaX3mFhdOIJhQl0TSEli7_iAHc0n7HkSWSbsjJCc_088SK9i_cT2cUT8xOMvO8KomSwloo5bUUXPWKxXvt4bmJSLn-71X1H3VRq2zNzNjUVGbywHZqop79uu16ZxwhUqGqX87YZqwcPijO41i1VQMTp5eZIaCgYKAV8SARISFQHGX2MiIM-gIPD4VpeLUCzVQauftg0175", "refresh_token": "1//046pSJKArkthgCgYIARAAGAQSNwF-L9IrphSVmTGpcyZ64OlvURVjtnINi8jOsMO_xn-mOw6udCGAeF01ok-NhUF_Jsp_OYgzV1E"}',
@@ -530,8 +530,8 @@ INSERT INTO public.ecob_account (id,name,provider,status,settings,created,update
     'EMAIL',
     '36734e49-c3a2-4caa-b56a-b7233fe4f987'::uuid,
     'COBRANCA',
-    'rafael@rafael.com',
-    '{rafael.wkt@gmail.com}',
+    'poly@gmail.com',
+    '{poly@gmail.com}',
     '{}',
     'Ola mundo',
     '<h1>Ola mundo body</h1><br><p>Email test!</p>',
