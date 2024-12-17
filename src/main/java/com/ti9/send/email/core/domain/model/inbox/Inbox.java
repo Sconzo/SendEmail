@@ -7,26 +7,25 @@ import com.ti9.send.email.core.domain.model.enums.BodyFormatEnum;
 import com.ti9.send.email.core.domain.model.enums.PriorityEnum;
 import com.ti9.send.email.core.domain.model.inbox.enums.InboxStatusEnum;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "ecob_inbox")
+@Entity
+@Table(name = "ecob_inbox")
 public class Inbox extends BaseAudit {
     @Id
     @Column
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id")
     private Account account;
 
@@ -43,12 +42,14 @@ public class Inbox extends BaseAudit {
     private String recipientsBCC;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private PriorityEnum priority;
 
     @Column
     private String subject;
 
     @Column(name = "body_format")
+    @Enumerated(EnumType.STRING)
     private BodyFormatEnum bodyFormat;
 
     @Column(name = "body_text")
@@ -61,12 +62,13 @@ public class Inbox extends BaseAudit {
     private LocalDate processedAt;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private InboxStatusEnum status;
 
     @Column(name = "error_message")
     private String errorMessage;
 
-    @OneToMany(mappedBy = "inbox", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "inbox", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<InboxLink> inboxLinkList;
 
 }

@@ -3,6 +3,7 @@ package com.ti9.send.email.core.domain.model.document;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "cfi")
+@Entity
+@Table(name = "cfi")
 public class Cfi {
     @Id
     @Column

@@ -9,13 +9,13 @@ import javax.sql.DataSource;
 
 @Configuration
 public class JpaDatabaseConfig {
-    @Value("${DATABASE_URL}")
+    @Value("${spring.datasource.url}")
     private String jdbcURL;
 
-    @Value("${DATABASE_USERNAME}")
+    @Value("${spring.datasource.username}")
     private String user;
 
-    @Value("${DATABASE_PASSWORD}")
+    @Value("${spring.datasource.password}")
     private String password;
 
     @Bean

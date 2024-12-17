@@ -4,6 +4,7 @@ import com.ti9.send.email.core.application.mapper.message.EmailMessageInformatio
 import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.dto.message.information.MessageInformationDTO;
 import com.ti9.send.email.core.domain.model.attach.Attach;
+import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
 import com.ti9.send.email.core.domain.model.inbox.Inbox;
 import com.ti9.send.email.core.domain.model.inbox.InboxLink;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
@@ -11,21 +12,19 @@ import com.ti9.send.email.core.domain.model.message.enums.BaseDateEnum;
 import com.ti9.send.email.core.domain.model.message.enums.DateRuleEnum;
 import com.ti9.send.email.core.domain.service.attach.AttachServiceImpl;
 import com.ti9.send.email.core.domain.service.document.DocumentService;
+import com.ti9.send.email.core.domain.service.inbox.InboxService;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
 import com.ti9.send.email.core.domain.service.message.template.MessageTemplateService;
 import com.ti9.send.email.core.infrastructure.adapter.out.sender.Sender;
 import com.ti9.send.email.core.infrastructure.adapter.utils.DateUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class NotificationScheduler {
@@ -35,113 +34,145 @@ public class NotificationScheduler {
     private final DocumentService documentService;
     private final AttachServiceImpl attachServiceImpl;
     private final List<Sender<MessageInformationDTO>> senderList;
+    private final InboxService inboxService;
 
     public NotificationScheduler(
             MessageRuleService messageRuleService,
             MessageTemplateService messageTemplateService,
             DocumentService documentService,
             List<Sender<MessageInformationDTO>> senderList,
-            AttachServiceImpl attachServiceImpl
+            AttachServiceImpl attachServiceImpl,
+            InboxService inboxService
     ) {
         this.messageRuleService = messageRuleService;
         this.messageTemplateService = messageTemplateService;
         this.documentService = documentService;
         this.attachServiceImpl = attachServiceImpl;
         this.senderList = senderList;
+        this.inboxService = inboxService;
     }
 
-    @Scheduled(cron = "${my.cron.expression}")
+    @Scheduled(cron = "${process.messages.cron.expression}")
     public void processMessages() {
-        System.out.println("Tarefa executada: " + System.currentTimeMillis());
-        LocalTime currentTime = LocalTime.now();
-        String currentHourMinute = currentTime.format(DateTimeFormatter.ofPattern("HH:mm"));
-        List<MessageRule> messageRuleList = messageRuleService.getActiveRules(currentHourMinute);
-        List<MessageInformationDTO> messageInformationDTOS = new ArrayList<>();
-        for (MessageRule messageRule : messageRuleList) {
-            DateRuleEnum dateRule = messageRule.getDateRule();
-            List<DocumentDTO> documentDTOList = documentService.getDocumentPlaceholderFromDocType(
-                    messageRule.getDocType(),
-                    messageRule.getDocStatus()
+        try {
+            System.out.println("Tarefa executada: " + System.currentTimeMillis());
+            LocalTime currentTime = LocalTime.now();
+            String currentHourMinute = currentTime.format(DateTimeFormatter.ofPattern("HH:mm"));
+            List<MessageInformationDTO> messageInformationDTOS = new ArrayList<>();
+            Set<String> docTypeSet = new HashSet<>();
+            Set<PaymentStatusEnum> paymentStatusEnumSet = new HashSet<>();
+            Map<UUID, List<Attach>> attachMap;
+            Map<UUID, List<byte[]>> attachmentMap;
+
+            List<MessageRule> messageRuleList = messageRuleService.getActiveRules(currentHourMinute);
+
+            List<Inbox> inboxList = inboxService.listInboxByAccountIds(
+                    messageRuleList.stream().map(messageRule ->
+                            messageRule.getMessageTemplate().getAccount().getId()
+                    ).toList()
             );
-            List<UUID> refIds = new ArrayList<>();
-            for (Inbox inbox : messageRule.getMessageTemplate().getAccount().getInboxList()) {
-                refIds.addAll(inbox.getInboxLinkList().stream().map(InboxLink::getRefId).toList());
+
+
+            for (MessageRule messageRule : messageRuleList) {
+                docTypeSet.addAll(messageRule.getDocType());
+                paymentStatusEnumSet.addAll(messageRule.getDocStatus());
+
             }
-            List<Attach> attachList = attachServiceImpl.findAttachByRefIds(refIds);
-            List<byte[]> attachments = getFiles(attachList);
 
+            attachMap = attachServiceImpl.findAttachByRefIds(
+                    inboxList.stream().flatMap(inbox ->
+                            inbox.getInboxLinkList().stream().map(InboxLink::getRefId)
+                    ).collect(Collectors.toSet()).stream().toList()
+            );
+            attachmentMap = this.getFiles(attachMap);
+            List<DocumentDTO> documentDTOList = documentService.getDocumentPlaceholderFromDocType(
+                    docTypeSet.stream().toList(),
+                   paymentStatusEnumSet.stream().toList()
 
-            for (DocumentDTO document : documentDTOList) {
-                String body = null;
-                if (Objects.equals(messageRule.getDateIndex(), BaseDateEnum.EMISSAO)) {
+            );
+
+            for (MessageRule messageRule : messageRuleList) {
+                boolean shouldBeSent = false;
+                DateRuleEnum dateRule = messageRule.getDateRule();
+                List<UUID> refIds = inboxList.stream().filter(inbox ->
+                        inbox.getAccount().getId().equals(messageRule.getMessageTemplate().getAccount().getId())
+                ).flatMap(inbox ->
+                        inbox.getInboxLinkList().stream().map(InboxLink::getRefId
+                        )
+                ).collect(Collectors.toSet()).stream().toList();
+                List<byte[]> attachmentList = attachmentMap.entrySet().stream().filter(entry ->
+                        refIds.contains(entry.getKey())
+                ).flatMap(entry ->
+                        entry.getValue().stream()
+                ).toList();
+                for (DocumentDTO document : documentDTOList) {
+                    BaseDateEnum dateIndex = messageRule.getDateIndex();
+                    LocalDate comparisonDate = switch (dateIndex) {
+                        case EMISSAO -> document.issueDate();
+                        case VENCIMENTO -> document.dueDate();
+                    };
                     if (Objects.equals(dateRule, DateRuleEnum.DIAS_UTEIS)) {
-                        if (messageRule.getSelectedDay().stream()
+                        int workDaysDifference = DateUtils.calculateWorkDaysDifference(
+                                LocalDate.now(), comparisonDate, DateUtils.getBrazilianHolidays());
+                        shouldBeSent = messageRule.getSelectedDay().stream()
                                 .map(Short::intValue)
-                                .toList()
-                                .contains(DateUtils.calculateWorkDaysDifference(
-                                        LocalDate.now(),
-                                        document.issueDate(),
-                                        DateUtils.getBrazilianHolidays())
-                                )
-                        ) {
-                            body = shouldSendEmail(messageRule, document);
-                        }
+                                .anyMatch(day -> day == workDaysDifference);
                     } else if (Objects.equals(dateRule, DateRuleEnum.DIAS_CORRIDOS)) {
-                        if (messageRule.getSelectedDay().contains(document.calendarDayDifferenceIssueDate())) {
-                            body = shouldSendEmail(messageRule, document);
-                        }
+                        int calendarDayDifference = document.calendarDayDifferenceIssueDate();
+                        shouldBeSent = messageRule.getSelectedDay().contains((short) calendarDayDifference);
                     }
-
-                } else if (Objects.equals(messageRule.getDateIndex(), BaseDateEnum.VENCIMENTO)) {
-                    if (Objects.equals(dateRule, DateRuleEnum.DIAS_UTEIS)) {
-                        if (messageRule.getSelectedDay().stream()
-                                .map(Short::intValue)
-                                .toList()
-                                .contains(DateUtils.calculateWorkDaysDifference(
-                                        LocalDate.now(),
-                                        document.dueDate(),
-                                        DateUtils.getBrazilianHolidays())
-                                )
-                        ) {
-                            body = shouldSendEmail(messageRule, document);
-                        }
-                    } else if (Objects.equals(dateRule, DateRuleEnum.DIAS_CORRIDOS)) {
-                        if (messageRule.getSelectedDay().contains(document.calendarDayDifferenceIssueDate())) {
-                            body = shouldSendEmail(messageRule, document);
-                        }
+                    if (shouldBeSent) {
+                        String body = shouldSendEmail(messageRule, document);
+                        defineMessageTypeAndPopulateMessageInformationDTO(
+                                messageRule,
+                                document,
+                                messageInformationDTOS,
+                                body,
+                                attachmentList
+                        );
                     }
                 }
-
-                switch (messageRule.getMessageTemplate().getAccount().getProvider()) {
-                    case SMTP -> messageInformationDTOS.add(
-                            EmailMessageInformationMapper.toSMTPEmailMessageInformationDTO(
-                                    document,
-                                    messageRule,
-                                    body,
-                                    attachments
-                            )
-                    );
-                    case GMAIL, OUTLOOK -> messageInformationDTOS.add(
-                            EmailMessageInformationMapper.toOAuthEmailMessageInformationDTO(
-                                    document,
-                                    messageRule,
-                                    body,
-                                    attachments
-                            )
-                    );
-                }
             }
+            send(messageInformationDTOS);
+            System.out.println("teste");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-        send(messageInformationDTOS);
-        System.out.println("teste");
+    }
+
+    private static void defineMessageTypeAndPopulateMessageInformationDTO(
+            MessageRule messageRule,
+            DocumentDTO document,
+            List<MessageInformationDTO> messageInformationDTOS,
+            String body,
+            List<byte[]> attachmentList
+    ) {
+        switch (messageRule.getMessageTemplate().getAccount().getProvider()) {
+            case SMTP -> messageInformationDTOS.add(
+                    EmailMessageInformationMapper.toSMTPEmailMessageInformationDTO(
+                            document,
+                            messageRule,
+                            body,
+                            attachmentList
+                    )
+            );
+            case GMAIL, OUTLOOK -> messageInformationDTOS.add(
+                    EmailMessageInformationMapper.toOAuthEmailMessageInformationDTO(
+                            document,
+                            messageRule,
+                            body,
+                            attachmentList
+                    )
+            );
+        }
     }
 
     private String shouldSendEmail(MessageRule messageRule, DocumentDTO document) {
         return messageTemplateService.formatBodyMessage(document, messageRule.getMessageTemplate().getBody());
     }
 
-    private List<byte[]> getFiles(List<Attach> attaches) {
-        return new ArrayList<>();
+    private Map<UUID, List<byte[]>> getFiles(Map<UUID, List<Attach>> attachMap) {
+        return attachMap.keySet().stream().collect(Collectors.toMap(key -> key, key -> new ArrayList<>()));
     }
 
     private void send(
