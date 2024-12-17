@@ -12,13 +12,14 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "account_link")
+@Entity
+@Table(name = "account_link")
 public class AttachLink {
     @Id
     @Column
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "attach_id")
     private Attach attach;
 

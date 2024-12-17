@@ -7,8 +7,6 @@ import com.ti9.send.email.core.domain.model.message.enums.BaseDateEnum;
 import com.ti9.send.email.core.domain.model.message.enums.DateRuleEnum;
 import com.ti9.send.email.core.domain.model.message.template.MessageTemplate;
 import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
-import com.ti9.send.email.core.infrastructure.adapter.converter.PaymentStatusEnumArrayConverter;
-import com.ti9.send.email.core.infrastructure.adapter.converter.StringArrayConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,18 +39,16 @@ public class MessageRule extends UpdatableBaseAudit {
     private BaseDateEnum dateIndex;
 
     @Column(name = "selected_times")
-    @Convert(converter = StringArrayConverter.class)
     private List<String> selectedTime;
 
     @Column(name = "selected_days")
     private List<Short> selectedDay;
 
     @Column(name = "doc_types")
-    @Convert(converter = StringArrayConverter.class)
     private List<String> docType;
 
     @Column(name = "doc_status")
-    @Convert(converter = PaymentStatusEnumArrayConverter.class)
+    @Enumerated(EnumType.STRING)
     private List<PaymentStatusEnum> docStatus;
 
     @Column
@@ -62,7 +58,7 @@ public class MessageRule extends UpdatableBaseAudit {
     @Column(name = "include_attachments")
     private Boolean includeAttachment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "model_id")
     private MessageTemplate messageTemplate;
 
