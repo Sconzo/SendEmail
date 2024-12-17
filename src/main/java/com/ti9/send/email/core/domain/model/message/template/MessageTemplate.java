@@ -6,21 +6,19 @@ import com.ti9.send.email.core.domain.model.account.Account;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
 import com.ti9.send.email.core.domain.model.message.template.enums.ActionEnum;
 import com.ti9.send.email.core.domain.model.message.template.enums.RecipientTypeEnum;
-import com.ti9.send.email.core.infrastructure.adapter.converter.StringArrayConverter;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "ecob_msg_model")
+@Entity
+@Table(name = "ecob_msg_model")
 public class MessageTemplate extends UpdatableBaseAudit {
 
     @Id
@@ -32,7 +30,7 @@ public class MessageTemplate extends UpdatableBaseAudit {
     @Enumerated(EnumType.STRING)
     private ActionEnum action;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id")
     private Account account;
 
@@ -44,11 +42,9 @@ public class MessageTemplate extends UpdatableBaseAudit {
     private String replyTo;
 
     @Column
-    @Convert(converter = StringArrayConverter.class)
     private List<String> cc;
 
     @Column
-    @Convert(converter = StringArrayConverter.class)
     private List<String> bcc;
 
     @Column
@@ -57,7 +53,7 @@ public class MessageTemplate extends UpdatableBaseAudit {
     @Column(name = "body_text")
     private String body;
 
-    @OneToMany(mappedBy = "messageTemplate", cascade = CascadeType.MERGE, orphanRemoval = true)
+    @OneToMany(mappedBy = "messageTemplate", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<MessageRule> messageRuleList;
 
     public void update(MessageTemplateRequest request){

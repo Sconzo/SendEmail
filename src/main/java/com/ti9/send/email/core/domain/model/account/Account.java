@@ -6,14 +6,12 @@ import com.ti9.send.email.core.domain.model.account.enums.ProviderEnum;
 import com.ti9.send.email.core.domain.model.inbox.Inbox;
 import com.ti9.send.email.core.domain.model.message.template.MessageTemplate;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @Data
 @AllArgsConstructor
@@ -39,11 +37,11 @@ public class Account extends UpdatableBaseAudit {
     @Column
     private String settings;
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Inbox> inboxList;
 
 
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<MessageTemplate> messageTemplateList;
 
     public Account(

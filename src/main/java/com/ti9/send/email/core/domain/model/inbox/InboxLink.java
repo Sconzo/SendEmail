@@ -12,7 +12,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "ecob_inbox_link")
+@Entity
+@Table(name = "ecob_inbox_link")
 public class InboxLink {
     @Id
     @Column

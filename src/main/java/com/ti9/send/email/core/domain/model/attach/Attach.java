@@ -2,19 +2,18 @@ package com.ti9.send.email.core.domain.model.attach;
 
 import com.ti9.send.email.core.domain.model.UpdatableBaseAudit;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "attach")
+@Entity
+@Table(name = "attach")
 public class Attach extends UpdatableBaseAudit {
     @Id
     @Column
