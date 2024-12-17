@@ -18,4 +18,6 @@ public interface MessageTemplateService {
     DataWrapper<MessageTemplateDTO> updateMessageTemplate(UUID uuid, MessageTemplateRequest request);
 
     String formatBodyMessage(DocumentDTO documentDTO, String body);
+
+    DataWrapper<MessageTemplateDTO> getMessageTemplateByRuleId(UUID ruleId);
 }

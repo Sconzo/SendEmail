@@ -78,6 +78,17 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
         return replacePlaceholders(body, replacements);
     }
 
+    @Override
+    public DataWrapper<MessageTemplateDTO> getMessageTemplateByRuleId(UUID ruleId) {
+        MessageTemplate modelByRuleId = repository.findModelByRuleId(ruleId);
+
+        if(Objects.nonNull(modelByRuleId)) {
+            return new DataWrapper<>(MessageTemplateMapper.toDTO(modelByRuleId));
+        } else {
+            return new DataWrapper<>(null);
+        }
+    }
+
 
     private String replacePlaceholders(String body, Map<String, String> replacements) {
         for (Map.Entry<String, String> entry : replacements.entrySet()) {

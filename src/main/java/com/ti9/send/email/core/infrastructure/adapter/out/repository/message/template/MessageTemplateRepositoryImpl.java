@@ -37,4 +37,9 @@ public class MessageTemplateRepositoryImpl implements MessageTemplateRepository 
     public List<MessageTemplate> list() {
         return jpaRepository.findAll();
     }
+
+    @Override
+    public MessageTemplate findModelByRuleId(UUID ruleId) {
+        return jpaRepository.findModelByRuleId(ruleId);
+    }
 }
