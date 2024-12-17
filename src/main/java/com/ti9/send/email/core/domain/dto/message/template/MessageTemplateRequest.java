@@ -13,7 +13,7 @@ public record MessageTemplateRequest(
         @NotNull(message = "action cannot be null") ActionEnum action,
         @NotNull(message = "senderId cannot be null") UUID senderId,
         @NotNull(message = "recipientType cannot be null") RecipientTypeEnum recipientType,
-        String replyTO,
+        String replyTo,
         List<String> cc,
         List<String> cco,
         @NotBlank(message = "subject cannot be blank") String subject,

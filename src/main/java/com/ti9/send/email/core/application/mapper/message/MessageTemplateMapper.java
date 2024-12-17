@@ -25,7 +25,7 @@ public class MessageTemplateMapper {
         messageTemplate.setAction(request.action());
         messageTemplate.setAccount(senderAccount);
         messageTemplate.setRecipientType(request.recipientType());
-        messageTemplate.setReplyTo(request.replyTO());
+        messageTemplate.setReplyTo(request.replyTo());
         messageTemplate.setCc(request.cc());
         messageTemplate.setBcc(request.cco());
         messageTemplate.setSubject(request.subject());
@@ -39,7 +39,7 @@ public class MessageTemplateMapper {
 
         return new MessageTemplateDTO(
                 entity.getId(),
-                entity.getAction().getDescription(),
+                entity.getAction().name(),
                 new BaseDTO(entity.getAccount().getId(), entity.getAccount().getName()),
                 entity.getRecipientType().getDescription(),
                 entity.getReplyTo(),

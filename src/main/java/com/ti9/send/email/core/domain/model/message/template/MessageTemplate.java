@@ -65,7 +65,7 @@ public class MessageTemplate extends UpdatableBaseAudit {
         this.action = request.action();
         this.account = new Account(request.senderId());
         this.recipientType = request.recipientType();
-        this.replyTo = request.replyTO();
+        this.replyTo = request.replyTo();
         this.cc = request.cc();
         this.bcc = request.cco();
         this.subject = request.subject();
