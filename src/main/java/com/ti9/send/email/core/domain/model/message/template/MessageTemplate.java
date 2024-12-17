@@ -20,7 +20,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name = "ecob_msg_model")
+@Entity
+@Table(name = "ecob_msg_model")
 public class MessageTemplate extends UpdatableBaseAudit {
 
     @Id

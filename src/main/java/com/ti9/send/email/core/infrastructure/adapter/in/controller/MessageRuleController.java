@@ -7,6 +7,7 @@ import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleRequest;
 import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleDTO;
 import com.ti9.send.email.core.domain.dto.message.SummaryMessageDTO;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class MessageRuleController {
     @PostMapping()
     public DataWrapper<MessageRuleDTO> createMessage(
             @RequestHeader String authorization,
-            @RequestBody MessageRuleRequest request
+            @RequestBody @Valid MessageRuleRequest request
     ) {
         DataWrapper<MessageRuleDTO> dataWrapper = messageRuleService.createMessage(request);
         dataWrapper.setMessage("Created successfully.");
@@ -55,7 +56,7 @@ public class MessageRuleController {
     public DataWrapper<MessageRuleDTO> updateMessage(
             @RequestHeader String authorization,
             @PathVariable UUID uuid,
-            @RequestBody MessageRuleRequest request
+            @RequestBody @Valid MessageRuleRequest request
     ) {
         DataWrapper<MessageRuleDTO> dataWrapper = messageRuleService.updateMessage(uuid, request);
         dataWrapper.setMessage("Updated successfully.");
