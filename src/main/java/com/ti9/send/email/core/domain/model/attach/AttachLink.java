@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "account_link")
+@Table(name = "attach_link")
 public class AttachLink {
     @Id
     @Column
