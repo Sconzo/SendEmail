@@ -1,7 +1,6 @@
 package com.ti9.send.email.core.domain.service.message.template;
 
 import com.ti9.send.email.core.application.exceptions.ResourceNotFoundException;
-import com.ti9.send.email.core.application.mapper.message.MessageRuleMapper;
 import com.ti9.send.email.core.application.mapper.message.MessageTemplateMapper;
 import com.ti9.send.email.core.application.port.out.message.template.MessageTemplateRepository;
 import com.ti9.send.email.core.domain.dto.DataListWrapper;
@@ -31,9 +30,13 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
 
     @Override
     public DataWrapper<MessageTemplateDTO> createMessageTemplate(MessageTemplateRequest request) {
+
+        messageRuleService.verifyIfRuleExists(request.messageRuleId());
+
         MessageTemplateDTO messageTemplateDTO = MessageTemplateMapper.toDTO(repository.save(MessageTemplateMapper.toEntity(request)));
 
         messageRuleService.setTemplateId(messageTemplateDTO.id(), request.messageRuleId());
+        
         return new DataWrapper<>(messageTemplateDTO);
     }
 
