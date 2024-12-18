@@ -6,6 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public interface AttachService {
-    Map<UUID, List<Attach>> findAttachByRefIds(List<UUID> refIds);
+public interface AttachLinkService {
+    Map<UUID, List<Attach>> findAttachLinkByRefIds(List<UUID> refIds);
 }

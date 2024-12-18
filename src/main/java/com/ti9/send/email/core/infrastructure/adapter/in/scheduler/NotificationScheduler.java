@@ -10,7 +10,7 @@ import com.ti9.send.email.core.domain.model.inbox.InboxLink;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
 import com.ti9.send.email.core.domain.model.message.enums.BaseDateEnum;
 import com.ti9.send.email.core.domain.model.message.enums.DateRuleEnum;
-import com.ti9.send.email.core.domain.service.attach.AttachServiceImpl;
+import com.ti9.send.email.core.domain.service.attach.AttachLinkLinkServiceImpl;
 import com.ti9.send.email.core.domain.service.document.DocumentService;
 import com.ti9.send.email.core.domain.service.inbox.InboxService;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
@@ -20,6 +20,10 @@ import com.ti9.send.email.core.infrastructure.adapter.utils.DateUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -32,7 +36,7 @@ public class NotificationScheduler {
     private final MessageRuleService messageRuleService;
     private final MessageTemplateService messageTemplateService;
     private final DocumentService documentService;
-    private final AttachServiceImpl attachServiceImpl;
+    private final AttachLinkLinkServiceImpl attachLinkServiceImpl;
     private final List<Sender<MessageInformationDTO>> senderList;
     private final InboxService inboxService;
 
@@ -41,13 +45,13 @@ public class NotificationScheduler {
             MessageTemplateService messageTemplateService,
             DocumentService documentService,
             List<Sender<MessageInformationDTO>> senderList,
-            AttachServiceImpl attachServiceImpl,
+            AttachLinkLinkServiceImpl attachLinkServiceImpl,
             InboxService inboxService
     ) {
         this.messageRuleService = messageRuleService;
         this.messageTemplateService = messageTemplateService;
         this.documentService = documentService;
-        this.attachServiceImpl = attachServiceImpl;
+        this.attachLinkServiceImpl = attachLinkServiceImpl;
         this.senderList = senderList;
         this.inboxService = inboxService;
     }
@@ -62,7 +66,7 @@ public class NotificationScheduler {
             Set<String> docTypeSet = new HashSet<>();
             Set<PaymentStatusEnum> paymentStatusEnumSet = new HashSet<>();
             Map<UUID, List<Attach>> attachMap;
-            Map<UUID, List<byte[]>> attachmentMap;
+            Map<UUID, List<byte[]>> refIdsAndFileMap;
 
             List<MessageRule> messageRuleList = messageRuleService.getActiveRules(currentHourMinute);
 
@@ -79,16 +83,15 @@ public class NotificationScheduler {
 
             }
 
-            attachMap = attachServiceImpl.findAttachByRefIds(
+            attachMap = attachLinkServiceImpl.findAttachLinkByRefIds(
                     inboxList.stream().flatMap(inbox ->
                             inbox.getInboxLinkList().stream().map(InboxLink::getRefId)
                     ).collect(Collectors.toSet()).stream().toList()
             );
-            attachmentMap = this.getFiles(attachMap);
+            refIdsAndFileMap = this.getFiles(attachMap);
             List<DocumentDTO> documentDTOList = documentService.getDocumentPlaceholderFromDocType(
                     docTypeSet.stream().toList(),
-                   paymentStatusEnumSet.stream().toList()
-
+                    paymentStatusEnumSet.stream().toList()
             );
 
             for (MessageRule messageRule : messageRuleList) {
@@ -100,7 +103,7 @@ public class NotificationScheduler {
                         inbox.getInboxLinkList().stream().map(InboxLink::getRefId
                         )
                 ).collect(Collectors.toSet()).stream().toList();
-                List<byte[]> attachmentList = attachmentMap.entrySet().stream().filter(entry ->
+                List<byte[]> attachmentList = refIdsAndFileMap.entrySet().stream().filter(entry ->
                         refIds.contains(entry.getKey())
                 ).flatMap(entry ->
                         entry.getValue().stream()
@@ -172,7 +175,24 @@ public class NotificationScheduler {
     }
 
     private Map<UUID, List<byte[]>> getFiles(Map<UUID, List<Attach>> attachMap) {
-        return attachMap.keySet().stream().collect(Collectors.toMap(key -> key, key -> new ArrayList<>()));
+        Map<UUID, List<byte[]>> refIdAndFileBytesMap = new HashMap<>();
+        attachMap.forEach((uuid, attachList) -> {
+            List<byte[]> fileBytesList = new ArrayList<>();
+            attachList.parallelStream().forEach(attach -> {
+                try {
+                Path filePath = Path.of(attach.getFolderName(), attach.getFilename());
+                File file = filePath.toFile();
+                byte[] fileBytes = Files.readAllBytes(file.toPath());
+                fileBytesList.add(fileBytes);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
+            refIdAndFileBytesMap.put(uuid, fileBytesList);
+
+        });
+        return refIdAndFileBytesMap;
     }
 
     private void send(
