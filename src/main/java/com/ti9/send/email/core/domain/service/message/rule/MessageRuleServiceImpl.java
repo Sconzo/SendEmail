@@ -76,4 +76,13 @@ public class MessageRuleServiceImpl implements MessageRuleService {
     public void changeStatus(UUID uuid) {
         repository.changeStatus(uuid);
     }
+
+    @Override
+    public void verifyIfRuleExists(UUID uuid) {
+        Optional<MessageRule> messageRuleOptional = repository.findById(uuid);
+
+        if (messageRuleOptional.isEmpty()) {
+            throw new ResourceNotFoundException("Message Rule not found");
+        }
+    }
 }

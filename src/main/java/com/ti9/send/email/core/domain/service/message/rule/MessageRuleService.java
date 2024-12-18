@@ -26,4 +26,6 @@ public interface MessageRuleService {
     void setTemplateId(UUID templateId, UUID messageRuleId);
 
     void changeStatus(UUID uuid);
+
+    void verifyIfRuleExists(UUID uuid);
 }
