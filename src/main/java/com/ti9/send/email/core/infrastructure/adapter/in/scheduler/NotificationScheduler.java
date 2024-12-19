@@ -114,7 +114,9 @@ public class NotificationScheduler {
                         case EMISSAO -> document.issueDate();
                         case VENCIMENTO -> document.dueDate();
                     };
-                    if (Objects.equals(dateRule, DateRuleEnum.DIAS_UTEIS)) {
+                    if (Objects.equals(dateRule, DateRuleEnum.DIAS_UTEIS) &&
+                            DateUtils.isWorkingDay(LocalDate.now(), DateUtils.getBrazilianHolidays())
+                    ) {
                         int workDaysDifference = DateUtils.calculateWorkDaysDifference(
                                 LocalDate.now(), comparisonDate, DateUtils.getBrazilianHolidays());
                         shouldBeSent = messageRule.getSelectedDay().stream()
