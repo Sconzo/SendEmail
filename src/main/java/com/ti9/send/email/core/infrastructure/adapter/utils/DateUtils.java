@@ -41,9 +41,7 @@ public class DateUtils {
         int step = finalDate.isAfter(today) ? 1 : -1;
 
         while (!currentDay.equals(finalDate)) {
-            if (currentDay.getDayOfWeek() != DayOfWeek.SATURDAY &&
-                    currentDay.getDayOfWeek() != DayOfWeek.SUNDAY &&
-                    !holidays.contains(currentDay)) {
+            if (isWorkingDay(currentDay, holidays)) {
                 workDays += step;
             }
             currentDay = currentDay.plusDays(step);
@@ -52,5 +50,13 @@ public class DateUtils {
         return workDays;
     }
 
+    public static boolean isWorkingDay(
+            LocalDate localDate,
+            List<LocalDate> holidays
+    ) {
+        return localDate.getDayOfWeek() != DayOfWeek.SATURDAY &&
+                localDate.getDayOfWeek() != DayOfWeek.SUNDAY &&
+                !holidays.contains(localDate);
+    }
 
 }
