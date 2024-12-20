@@ -77,7 +77,7 @@ public class MessageRuleController {
 
     }
 
-    @PatchMapping("/status/{uuid}")
+    @PostMapping("/status/{uuid}")
     public DataWrapper<MessageRuleDTO> changeStatus(
             @RequestHeader String authorization,
             @PathVariable UUID uuid
