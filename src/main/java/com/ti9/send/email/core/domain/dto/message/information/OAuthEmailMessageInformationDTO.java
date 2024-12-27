@@ -10,5 +10,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OAuthEmailMessageInformationDTO extends EmailMessageInformationDTO {
-    private String token;
+    private TokenDTO token;
+
+    public OAuthEmailMessageInformationDTO(
+            EmailMessageInformationDTO emailMessageInformationDTO
+    ) {
+        super(
+                emailMessageInformationDTO.getSubject(),
+                emailMessageInformationDTO.getCarbonCopy(),
+                emailMessageInformationDTO.getBlindCarbonCopy(),
+                emailMessageInformationDTO.getProviderType()
+        );
+    }
 }
