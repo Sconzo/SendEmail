@@ -4,6 +4,7 @@ import com.ti9.send.email.core.domain.dto.message.information.EmailMessageInform
 import com.ti9.send.email.core.domain.dto.message.information.OAuthEmailMessageInformationDTO;
 import com.ti9.send.email.core.domain.dto.message.information.SMTPEmailMessageInformationDTO;
 import com.ti9.send.email.core.domain.model.account.enums.ProviderEnum;
+import com.ti9.send.email.core.domain.service.token.TokenService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,20 +18,27 @@ import java.util.Map;
 import java.util.Properties;
 
 @Component
-public class SenderEmail implements Sender<EmailMessageInformationDTO> {
+public class SenderEmailImpl implements Sender<EmailMessageInformationDTO> {
 
     private final Map<ProviderEnum, JavaMailSender> mailSenders;
+    private final Map<ProviderEnum, TokenService> tokenServiceMap;
 
     @Autowired
-    public SenderEmail(
+    public SenderEmailImpl(
             @Qualifier("oAuthGmailMailSender") JavaMailSender oAuthGmailMailSender,
             @Qualifier("outlookMailSender") JavaMailSender outlookSender,
-            @Qualifier("smtpGmailMailSender") JavaMailSender smtpGmailMailSender
+            @Qualifier("smtpGmailMailSender") JavaMailSender smtpGmailMailSender,
+            @Qualifier("gmailTokenService") TokenService gmailTokenService,
+            @Qualifier("outlookTokenService") TokenService outlookTokenService
     ) {
         this.mailSenders = Map.of(
                 ProviderEnum.GMAIL, oAuthGmailMailSender,
                 ProviderEnum.OUTLOOK, outlookSender,
                 ProviderEnum.SMTP, smtpGmailMailSender
+        );
+        this.tokenServiceMap = Map.of(
+                ProviderEnum.GMAIL, gmailTokenService,
+                ProviderEnum.OUTLOOK, outlookTokenService
         );
     }
 
@@ -42,15 +50,12 @@ public class SenderEmail implements Sender<EmailMessageInformationDTO> {
                 emailMessageInformationDTO.getProviderType()
         );
         switch (emailMessageInformationDTO.getProviderType()) {
-            case GMAIL -> oAuthGmailConfiguration(
+            case GMAIL, OUTLOOK -> oAuthConfiguration(
                     javaMailSender,
-                    (OAuthEmailMessageInformationDTO) emailMessageInformationDTO
+                    (OAuthEmailMessageInformationDTO) emailMessageInformationDTO,
+                    tokenServiceMap.get(emailMessageInformationDTO.getProviderType())
             );
             case SMTP -> smtpConfiguration(
-                    javaMailSender,
-                    (SMTPEmailMessageInformationDTO) emailMessageInformationDTO
-            );
-            case OUTLOOK -> outlookConfiguration(
                     javaMailSender,
                     (SMTPEmailMessageInformationDTO) emailMessageInformationDTO
             );
@@ -69,10 +74,12 @@ public class SenderEmail implements Sender<EmailMessageInformationDTO> {
         javaMailSender.send(mimeMessage);
     }
 
-    private void oAuthGmailConfiguration(
+    private void oAuthConfiguration(
             JavaMailSenderImpl mailSender,
-            OAuthEmailMessageInformationDTO emailMessageInformationDTO
+            OAuthEmailMessageInformationDTO emailMessageInformationDTO,
+            TokenService tokenService
     ) {
+        tokenService.validateAndRenewToken(emailMessageInformationDTO.getToken());
         mailSender.setUsername(emailMessageInformationDTO.getFrom());
         mailSender.setPassword(null);
 
@@ -94,19 +101,5 @@ public class SenderEmail implements Sender<EmailMessageInformationDTO> {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.starttls.required", "true");
-    }
-
-    private void outlookConfiguration(
-            JavaMailSenderImpl mailSender,
-            SMTPEmailMessageInformationDTO emailMessageInformationDTO
-    ) {
-        mailSender.setUsername(emailMessageInformationDTO.getFrom());
-        mailSender.setPassword(emailMessageInformationDTO.getPassword());
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.ssl.trust", "smtp.office365.com");
     }
 }
