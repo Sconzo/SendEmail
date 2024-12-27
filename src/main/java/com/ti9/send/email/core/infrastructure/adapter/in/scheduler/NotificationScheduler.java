@@ -1,8 +1,12 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.scheduler;
 
 import com.ti9.send.email.core.application.mapper.message.EmailMessageInformationMapper;
+import com.ti9.send.email.core.domain.dto.message.information.TokenDTO;
+import com.ti9.send.email.core.domain.dto.message.information.UserInformationDTO;
 import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
+import com.ti9.send.email.core.domain.dto.message.information.EmailMessageInformationDTO;
 import com.ti9.send.email.core.domain.dto.message.information.MessageInformationDTO;
+import com.ti9.send.email.core.domain.model.account.enums.ProviderEnum;
 import com.ti9.send.email.core.domain.model.attach.Attach;
 import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
 import com.ti9.send.email.core.domain.model.inbox.Inbox;
@@ -15,8 +19,11 @@ import com.ti9.send.email.core.domain.service.document.DocumentService;
 import com.ti9.send.email.core.domain.service.inbox.InboxService;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
 import com.ti9.send.email.core.domain.service.message.template.MessageTemplateService;
-import com.ti9.send.email.core.infrastructure.adapter.out.sender.Sender;
+import com.ti9.send.email.core.domain.service.token.TokenService;
+import com.ti9.send.email.core.infrastructure.adapter.out.sender.SenderFacade;
 import com.ti9.send.email.core.infrastructure.adapter.utils.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -37,23 +44,31 @@ public class NotificationScheduler {
     private final MessageTemplateService messageTemplateService;
     private final DocumentService documentService;
     private final AttachLinkLinkServiceImpl attachLinkServiceImpl;
-    private final List<Sender<MessageInformationDTO>> senderList;
+    private final SenderFacade senderFacade;
     private final InboxService inboxService;
+    private final Map<ProviderEnum, TokenService> tokenServiceMap;
 
+    @Autowired
     public NotificationScheduler(
             MessageRuleService messageRuleService,
             MessageTemplateService messageTemplateService,
             DocumentService documentService,
-            List<Sender<MessageInformationDTO>> senderList,
             AttachLinkLinkServiceImpl attachLinkServiceImpl,
-            InboxService inboxService
+            SenderFacade senderFacade,
+            InboxService inboxService,
+            @Qualifier("gmailTokenService") TokenService gmailTokenService,
+            @Qualifier("outlookTokenService") TokenService outlookTokenService
     ) {
         this.messageRuleService = messageRuleService;
         this.messageTemplateService = messageTemplateService;
         this.documentService = documentService;
         this.attachLinkServiceImpl = attachLinkServiceImpl;
-        this.senderList = senderList;
+        this.senderFacade = senderFacade;
         this.inboxService = inboxService;
+        this.tokenServiceMap = Map.of(
+                ProviderEnum.GMAIL, gmailTokenService,
+                ProviderEnum.OUTLOOK, outlookTokenService
+        );
     }
 
     @Scheduled(cron = "${process.messages.cron.expression}")
@@ -80,7 +95,6 @@ public class NotificationScheduler {
             for (MessageRule messageRule : messageRuleList) {
                 docTypeSet.addAll(messageRule.getDocType());
                 paymentStatusEnumSet.addAll(messageRule.getDocStatus());
-
             }
 
             attachMap = attachLinkServiceImpl.findAttachLinkByRefIds(
@@ -127,52 +141,58 @@ public class NotificationScheduler {
                         shouldBeSent = messageRule.getSelectedDay().contains((short) calendarDayDifference);
                     }
                     if (shouldBeSent) {
-                        String body = shouldSendEmail(messageRule, document);
                         defineMessageTypeAndPopulateMessageInformationDTO(
                                 messageRule,
                                 document,
                                 messageInformationDTOS,
-                                body,
+                                messageBodyBuilder(messageRule, document),
                                 attachmentList
                         );
                     }
                 }
             }
-            send(messageInformationDTOS);
+            senderFacade.send(messageInformationDTOS);
             System.out.println("teste");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static void defineMessageTypeAndPopulateMessageInformationDTO(
+    private void defineMessageTypeAndPopulateMessageInformationDTO(
             MessageRule messageRule,
             DocumentDTO document,
             List<MessageInformationDTO> messageInformationDTOS,
             String body,
             List<byte[]> attachmentList
     ) {
+        TokenDTO tokenDTO = TokenDTO.fromJson(messageRule.getMessageTemplate().getAccount().getSettings());
+        UserInformationDTO userInformationDTO = tokenServiceMap.get(
+                messageRule.getMessageTemplate().getAccount().getProvider()
+        ).getDecodedToken(tokenDTO);
+        EmailMessageInformationDTO emailMessageInformationDTO =
+                EmailMessageInformationMapper.emailMessageInformationDTO(
+                        document,
+                        messageRule,
+                        body,
+                        attachmentList,
+                        userInformationDTO
+                );
         switch (messageRule.getMessageTemplate().getAccount().getProvider()) {
             case SMTP -> messageInformationDTOS.add(
                     EmailMessageInformationMapper.toSMTPEmailMessageInformationDTO(
-                            document,
-                            messageRule,
-                            body,
-                            attachmentList
+                            emailMessageInformationDTO
                     )
             );
             case GMAIL, OUTLOOK -> messageInformationDTOS.add(
                     EmailMessageInformationMapper.toOAuthEmailMessageInformationDTO(
-                            document,
-                            messageRule,
-                            body,
-                            attachmentList
+                            emailMessageInformationDTO,
+                            tokenDTO
                     )
             );
         }
     }
 
-    private String shouldSendEmail(MessageRule messageRule, DocumentDTO document) {
+    private String messageBodyBuilder(MessageRule messageRule, DocumentDTO document) {
         return messageTemplateService.formatBodyMessage(document, messageRule.getMessageTemplate().getBody());
     }
 
@@ -182,10 +202,10 @@ public class NotificationScheduler {
             List<byte[]> fileBytesList = new ArrayList<>();
             attachList.parallelStream().forEach(attach -> {
                 try {
-                Path filePath = Path.of(attach.getFolderName(), attach.getFilename());
-                File file = filePath.toFile();
-                byte[] fileBytes = Files.readAllBytes(file.toPath());
-                fileBytesList.add(fileBytes);
+                    Path filePath = Path.of(attach.getFolderName(), attach.getFilename());
+                    File file = filePath.toFile();
+                    byte[] fileBytes = Files.readAllBytes(file.toPath());
+                    fileBytesList.add(fileBytes);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -195,20 +215,6 @@ public class NotificationScheduler {
 
         });
         return refIdAndFileBytesMap;
-    }
-
-    private void send(
-            List<MessageInformationDTO> messageInformationDTOS
-    ) {
-        try {
-            for (MessageInformationDTO messageInformationDTO : messageInformationDTOS) {
-                for (Sender<MessageInformationDTO> sender : senderList) {
-                    sender.send(messageInformationDTO);
-                }
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
     }
 }
 
