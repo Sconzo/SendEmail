@@ -16,6 +16,10 @@ public class OAuthEmailMessageInformationDTO extends EmailMessageInformationDTO 
             EmailMessageInformationDTO emailMessageInformationDTO
     ) {
         super(
+                emailMessageInformationDTO.getFrom(),
+                emailMessageInformationDTO.getToList(),
+                emailMessageInformationDTO.getBody(),
+                emailMessageInformationDTO.getAttachment(),
                 emailMessageInformationDTO.getSubject(),
                 emailMessageInformationDTO.getCarbonCopy(),
                 emailMessageInformationDTO.getBlindCarbonCopy(),

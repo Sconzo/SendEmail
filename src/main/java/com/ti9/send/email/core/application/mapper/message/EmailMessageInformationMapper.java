@@ -8,6 +8,7 @@ import com.ti9.send.email.core.domain.dto.message.information.OAuthEmailMessageI
 import com.ti9.send.email.core.domain.dto.message.information.SMTPEmailMessageInformationDTO;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,12 +18,12 @@ public class EmailMessageInformationMapper {
             DocumentDTO documentDTO,
             MessageRule messageRule,
             String body,
-            List<byte[]> attachments,
+            List<File> attachments,
             UserInformationDTO userInformationDTO
     ) {
         EmailMessageInformationDTO emailMessageInformationDTO = new EmailMessageInformationDTO();
         emailMessageInformationDTO.setFrom(userInformationDTO.getEmail());
-        emailMessageInformationDTO.setToList(Collections.singletonList(documentDTO.billingContact()));
+        emailMessageInformationDTO.setToList(Collections.singletonList(documentDTO.billingEmail()));
         emailMessageInformationDTO.setBody(body);
         emailMessageInformationDTO.setAttachment(attachments);
         emailMessageInformationDTO.setCarbonCopy(messageRule.getMessageTemplate().getCc());
