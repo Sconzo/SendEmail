@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.io.File;
 import java.util.List;
 
 @EqualsAndHashCode
@@ -15,5 +16,5 @@ public class MessageInformationDTO {
     private String from;
     private List<String> toList;
     private String body;
-    private List<byte[]> attachment;
+    private List<File> attachment;
 }
