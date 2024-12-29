@@ -1,4 +1,4 @@
-package com.ti9.send.email.core.infrastructure.validator;
+package com.ti9.send.email.core.infrastructure.annotation;
 
 import com.ti9.send.email.core.application.validator.TimeValidator;
 import jakarta.validation.Constraint;

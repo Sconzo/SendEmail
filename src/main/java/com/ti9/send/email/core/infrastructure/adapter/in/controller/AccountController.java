@@ -5,6 +5,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.ti9.send.email.core.domain.dto.DataListWrapper;
 import com.ti9.send.email.core.domain.dto.DataWrapper;
 import com.ti9.send.email.core.domain.dto.OAuth2AccessToken;
+import com.ti9.send.email.core.domain.dto.account.AccountRequest;
 import com.ti9.send.email.core.domain.dto.account.AccountResponse;
 import com.ti9.send.email.core.domain.service.account.AccountService;
 import jakarta.mail.*;
@@ -39,7 +40,7 @@ public class AccountController {
 //        accountService.associateAccount(request, file);
 //    }
 
-    @PostMapping(consumes = "application/json")
+    @PostMapping(value = "test", consumes = "application/json")
     public OAuth2AccessToken test(
             @RequestHeader String authorization,
             @RequestParam("clientId") String clientId,
@@ -118,6 +119,17 @@ public class AccountController {
 
     }
 
+    @PostMapping()
+    public DataWrapper<AccountResponse> createAccount(
+            @RequestHeader String authorization,
+            @RequestBody AccountRequest body
+    ) {
+
+        DataWrapper<AccountResponse> dataWrapper = accountService.createAccount(body);
+        dataWrapper.setMessage("Account creation success.");
+        dataWrapper.setStatus(HTTPResponse.SC_CREATED);
+        return dataWrapper;
+    }
 
     @GetMapping("/list")
     public DataListWrapper<AccountResponse> listAccounts(
@@ -141,18 +153,38 @@ public class AccountController {
     }
 
     @PatchMapping("/{uuid}")
-    public void updateAccount(
+    public DataWrapper<AccountResponse> updateAccount(
+            @RequestHeader String authorization,
+            @RequestBody AccountRequest body,
+            @PathVariable UUID uuid
+    ) {
+        DataWrapper<AccountResponse> dataWrapper = accountService.updateAccount(uuid, body);
+        dataWrapper.setMessage("Success.");
+        dataWrapper.setStatus(HTTPResponse.SC_OK);
+        return dataWrapper;
+    }
+
+    @PatchMapping("/status/{uuid}")
+    public DataWrapper<AccountResponse> changeStatus(
             @RequestHeader String authorization,
             @PathVariable UUID uuid
     ) {
-        accountService.updateAccount(uuid);
+        accountService.changeStatus(uuid);
+        DataWrapper<AccountResponse> dataWrapper = new DataWrapper<>();
+        dataWrapper.setMessage("Success.");
+        dataWrapper.setStatus(HTTPResponse.SC_OK);
+        return dataWrapper;
     }
 
     @DeleteMapping("/{uuid}")
-    public void deleteAccount(
+    public DataWrapper<AccountResponse> deleteAccount(
             @RequestHeader String authorization,
             @PathVariable UUID uuid
     ) {
         accountService.deleteAccount(uuid);
+        DataWrapper<AccountResponse> dataWrapper = new DataWrapper<>();
+        dataWrapper.setMessage("Success.");
+        dataWrapper.setStatus(HTTPResponse.SC_OK);
+        return dataWrapper;
     }
 }

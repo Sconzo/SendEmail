@@ -7,6 +7,7 @@ import com.ti9.send.email.core.domain.model.inbox.Inbox;
 import com.ti9.send.email.core.domain.model.message.template.MessageTemplate;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,8 +20,10 @@ import java.util.UUID;
 @Entity
 @Table(name = "ecob_account")
 public class Account extends UpdatableBaseAudit {
+
     @Id
     @Column
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column
@@ -35,11 +38,11 @@ public class Account extends UpdatableBaseAudit {
     private StatusEnum status;
 
     @Column
+    @ColumnTransformer(write = "?::jsonb")
     private String settings;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Inbox> inboxList;
-
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<MessageTemplate> messageTemplateList;
@@ -60,5 +63,12 @@ public class Account extends UpdatableBaseAudit {
             UUID id
     ) {
         this.id = id;
+    }
+
+    public void update(Account entityUpdated) {
+        this.name = entityUpdated.getName();
+        this.status = entityUpdated.getStatus();
+        this.provider = entityUpdated.getProvider();
+        this.settings = entityUpdated.getSettings();
     }
 }

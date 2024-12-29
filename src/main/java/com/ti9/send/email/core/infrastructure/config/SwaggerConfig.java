@@ -17,9 +17,9 @@ public class SwaggerConfig {
                         .title("API Documentation")
                         .version("1.0")
                         .description("API for managing resources"))
-                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                .addSecurityItem(new SecurityRequirement().addList("authorization"))
                 .components(new io.swagger.v3.oas.models.Components()
-                        .addSecuritySchemes("bearerAuth",
+                        .addSecuritySchemes("authorization",
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
