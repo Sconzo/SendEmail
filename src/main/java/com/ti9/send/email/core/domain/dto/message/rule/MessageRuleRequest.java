@@ -4,11 +4,9 @@ import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
 import com.ti9.send.email.core.domain.model.enums.StatusEnum;
 import com.ti9.send.email.core.domain.model.message.enums.BaseDateEnum;
 import com.ti9.send.email.core.domain.model.message.enums.DateRuleEnum;
-import com.ti9.send.email.core.infrastructure.validator.ValidTime;
-import jakarta.validation.Valid;
+import com.ti9.send.email.core.infrastructure.annotation.ValidTime;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;

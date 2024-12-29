@@ -1,6 +1,6 @@
 package com.ti9.send.email.core.application.validator;
 
-import com.ti9.send.email.core.infrastructure.validator.ValidTime;
+import com.ti9.send.email.core.infrastructure.annotation.ValidTime;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

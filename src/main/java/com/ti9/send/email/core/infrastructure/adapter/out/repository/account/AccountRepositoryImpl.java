@@ -36,4 +36,9 @@ public class AccountRepositoryImpl implements AccountRepository {
     public List<Account> list() {
         return jpaRepository.findAll();
     }
+
+    @Override
+    public void changeStatus(UUID uuid) {
+        jpaRepository.changeStatus(uuid);
+    }
 }
