@@ -14,6 +14,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 
@@ -64,12 +65,17 @@ public class SenderEmailImpl implements Sender<EmailMessageInformationDTO> {
 
 
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
 
         helper.setFrom(emailMessageInformationDTO.getFrom());
         helper.setTo(emailMessageInformationDTO.getToList().toArray(new String[0]));
         helper.setSubject(emailMessageInformationDTO.getSubject());
         helper.setText(emailMessageInformationDTO.getBody(), true);
+        helper.setCc(emailMessageInformationDTO.getCarbonCopy().toArray(new String[0]));
+        helper.setBcc(emailMessageInformationDTO.getBlindCarbonCopy().toArray(new String[0]));
+        for (File file : emailMessageInformationDTO.getAttachment()) {
+            helper.addAttachment(file.getName(), file);
+        }
 
         javaMailSender.send(mimeMessage);
     }
@@ -85,7 +91,17 @@ public class SenderEmailImpl implements Sender<EmailMessageInformationDTO> {
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
-        props.put("mail.smtp.auth.xoauth2.accessToken", emailMessageInformationDTO.getToken());
+        props.put("mail.smtp.auth.xoauth2.accessToken", emailMessageInformationDTO.getToken().getAccessToken());
+
+        mailSender.setSession(jakarta.mail.Session.getInstance(props, new jakarta.mail.Authenticator() {
+            @Override
+            protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
+                return new jakarta.mail.PasswordAuthentication(
+                        emailMessageInformationDTO.getFrom(),
+                        emailMessageInformationDTO.getToken().getAccessToken()
+                );
+            }
+        }));
 
     }
 

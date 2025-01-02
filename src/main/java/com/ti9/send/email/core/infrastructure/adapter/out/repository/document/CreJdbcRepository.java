@@ -35,7 +35,8 @@ public class CreJdbcRepository {
                 cre.valor_aberto,
                 cre.valor_documento,
                 CURRENT_DATE - cre.data_emissao AS dias_emissao,
-                CURRENT_DATE - cre.data_vencimento AS dias_vencimento
+                CURRENT_DATE - cre.data_vencimento AS dias_vencimento,
+                cfr.email_cobranca
             FROM cre cre
             INNER JOIN cfr cfr ON cfr.id = cre.cliente_id
             WHERE cre.doc_type IN (:docType)
@@ -62,7 +63,8 @@ public class CreJdbcRepository {
                     rs.getBigDecimal("valor_aberto"),
                     rs.getBigDecimal("valor_documento"),
                     rs.getShort("dias_emissao"),
-                    rs.getShort("dias_vencimento")
+                    rs.getShort("dias_vencimento"),
+                    rs.getString("email_cobranca")
             );
         });
     }

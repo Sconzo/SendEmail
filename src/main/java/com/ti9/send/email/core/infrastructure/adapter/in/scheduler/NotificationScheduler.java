@@ -81,7 +81,7 @@ public class NotificationScheduler {
             Set<String> docTypeSet = new HashSet<>();
             Set<PaymentStatusEnum> paymentStatusEnumSet = new HashSet<>();
             Map<UUID, List<Attach>> attachMap;
-            Map<UUID, List<byte[]>> refIdsAndFileMap;
+            Map<UUID, List<File>> refIdsAndFileMap;
 
             List<MessageRule> messageRuleList = messageRuleService.getActiveRules(currentHourMinute);
 
@@ -117,7 +117,7 @@ public class NotificationScheduler {
                         inbox.getInboxLinkList().stream().map(InboxLink::getRefId
                         )
                 ).collect(Collectors.toSet()).stream().toList();
-                List<byte[]> attachmentList = refIdsAndFileMap.entrySet().stream().filter(entry ->
+                List<File> attachmentList = refIdsAndFileMap.entrySet().stream().filter(entry ->
                         refIds.contains(entry.getKey())
                 ).flatMap(entry ->
                         entry.getValue().stream()
@@ -163,7 +163,7 @@ public class NotificationScheduler {
             DocumentDTO document,
             List<MessageInformationDTO> messageInformationDTOS,
             String body,
-            List<byte[]> attachmentList
+            List<File> attachmentList
     ) {
         TokenDTO tokenDTO = TokenDTO.fromJson(messageRule.getMessageTemplate().getAccount().getSettings());
         UserInformationDTO userInformationDTO = tokenServiceMap.get(
@@ -190,25 +190,21 @@ public class NotificationScheduler {
                     )
             );
         }
+        System.out.println("testa");
     }
 
     private String messageBodyBuilder(MessageRule messageRule, DocumentDTO document) {
         return messageTemplateService.formatBodyMessage(document, messageRule.getMessageTemplate().getBody());
     }
 
-    private Map<UUID, List<byte[]>> getFiles(Map<UUID, List<Attach>> attachMap) {
-        Map<UUID, List<byte[]>> refIdAndFileBytesMap = new HashMap<>();
+    private Map<UUID, List<File>> getFiles(Map<UUID, List<Attach>> attachMap) {
+        Map<UUID, List<File>> refIdAndFileBytesMap = new HashMap<>();
         attachMap.forEach((uuid, attachList) -> {
-            List<byte[]> fileBytesList = new ArrayList<>();
+            List<File> fileBytesList = new ArrayList<>();
             attachList.parallelStream().forEach(attach -> {
-                try {
                     Path filePath = Path.of(attach.getFolderName(), attach.getFilename());
                     File file = filePath.toFile();
-                    byte[] fileBytes = Files.readAllBytes(file.toPath());
-                    fileBytesList.add(fileBytes);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                    fileBytesList.add(file);
 
             });
             refIdAndFileBytesMap.put(uuid, fileBytesList);
