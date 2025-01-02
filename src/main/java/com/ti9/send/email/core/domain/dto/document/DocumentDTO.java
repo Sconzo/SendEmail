@@ -15,6 +15,7 @@ public record DocumentDTO(
         BigDecimal documentAmount,
         BigDecimal outstandingAmount,
         Short calendarDayDifferenceIssueDate,
-        Short calendarDayDifferenceDueDate
+        Short calendarDayDifferenceDueDate,
+        String billingEmail
 ){
 }
