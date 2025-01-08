@@ -85,20 +85,20 @@ public class SenderEmailImpl implements Sender<EmailMessageInformationDTO> {
             OAuthEmailMessageInformationDTO emailMessageInformationDTO,
             TokenService tokenService
     ) {
-        tokenService.validateAndRenewToken(emailMessageInformationDTO.getToken());
+        tokenService.validateAndRenewToken(emailMessageInformationDTO.getOAuthSettings());
         mailSender.setUsername(emailMessageInformationDTO.getFrom());
         mailSender.setPassword(null);
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.smtp.auth.mechanisms", "XOAUTH2");
-        props.put("mail.smtp.auth.xoauth2.accessToken", emailMessageInformationDTO.getToken().getAccessToken());
+        props.put("mail.smtp.auth.xoauth2.accessToken", emailMessageInformationDTO.getOAuthSettings().getAccessToken());
 
         mailSender.setSession(jakarta.mail.Session.getInstance(props, new jakarta.mail.Authenticator() {
             @Override
             protected jakarta.mail.PasswordAuthentication getPasswordAuthentication() {
                 return new jakarta.mail.PasswordAuthentication(
                         emailMessageInformationDTO.getFrom(),
-                        emailMessageInformationDTO.getToken().getAccessToken()
+                        emailMessageInformationDTO.getOAuthSettings().getAccessToken()
                 );
             }
         }));

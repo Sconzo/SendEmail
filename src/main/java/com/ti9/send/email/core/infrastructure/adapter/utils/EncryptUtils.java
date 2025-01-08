@@ -30,12 +30,16 @@ public class EncryptUtils {
         }
     }
 
-    public static String decrypt(String encryptedPassword) throws Exception {
-        SecretKeySpec key = getKey();
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, key);
-        byte[] decodedPassword = Base64.getDecoder().decode(encryptedPassword);
-        byte[] originalPassword = cipher.doFinal(decodedPassword);
-        return new String(originalPassword);
+    public static String decrypt(String encryptedPassword) {
+        try {
+            SecretKeySpec key = getKey();
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            byte[] decodedPassword = Base64.getDecoder().decode(encryptedPassword);
+            byte[] originalPassword = cipher.doFinal(decodedPassword);
+            return new String(originalPassword);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
