@@ -71,4 +71,8 @@ public class Account extends UpdatableBaseAudit {
         this.provider = entityUpdated.getProvider();
         this.settings = entityUpdated.getSettings();
     }
+
+    public String getSettings() {
+        return this.settings.substring(0, this.settings.length() - 1).concat(", \"should_encrypt\": false }");
+    }
 }
