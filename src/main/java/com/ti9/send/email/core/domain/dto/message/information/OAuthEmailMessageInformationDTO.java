@@ -1,5 +1,6 @@
 package com.ti9.send.email.core.domain.dto.message.information;
 
+import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OAuthEmailMessageInformationDTO extends EmailMessageInformationDTO {
-    private TokenDTO token;
+    private OAuthSettings oAuthSettings;
 
     public OAuthEmailMessageInformationDTO(
             EmailMessageInformationDTO emailMessageInformationDTO

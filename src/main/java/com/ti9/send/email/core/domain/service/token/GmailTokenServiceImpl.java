@@ -9,7 +9,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.UserCredentials;
-import com.ti9.send.email.core.domain.dto.message.information.TokenDTO;
+import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
 import com.ti9.send.email.core.domain.dto.message.information.UserInformationDTO;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +38,7 @@ public class GmailTokenServiceImpl implements TokenService {
 
 
     @Override
-    public void validateAndRenewToken(TokenDTO tokenDTO) {
+    public void validateAndRenewToken(OAuthSettings tokenDTO) {
         try {
             Credential credential = new GoogleCredential().setAccessToken(tokenDTO.getAccessToken());
             if (isTokenExpired(credential)) {
@@ -50,7 +50,7 @@ public class GmailTokenServiceImpl implements TokenService {
     }
 
     @Override
-    public UserInformationDTO getDecodedToken(TokenDTO tokenDTO) {
+    public UserInformationDTO getDecodedToken(OAuthSettings tokenDTO) {
         UserInformationDTO userInformationDTO = new UserInformationDTO();
         validateAndRenewToken(tokenDTO);
         try (HttpClient client = HttpClient.newHttpClient()) {

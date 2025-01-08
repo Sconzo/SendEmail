@@ -1,7 +1,11 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.scheduler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ti9.send.email.core.application.mapper.message.EmailMessageInformationMapper;
-import com.ti9.send.email.core.domain.dto.message.information.TokenDTO;
+import com.ti9.send.email.core.domain.dto.account.AccountSettings;
+import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
+import com.ti9.send.email.core.domain.dto.account.SmtpSettings;
 import com.ti9.send.email.core.domain.dto.message.information.UserInformationDTO;
 import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.dto.message.information.EmailMessageInformationDTO;
@@ -28,8 +32,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -71,7 +73,7 @@ public class NotificationScheduler {
         );
     }
 
-    @Scheduled(cron = "${process.messages.cron.expression}")
+    //@Scheduled(cron = "${process.messages.cron.expression}")
     public void processMessages() {
         try {
             System.out.println("Tarefa executada: " + System.currentTimeMillis());
@@ -164,31 +166,42 @@ public class NotificationScheduler {
             List<MessageInformationDTO> messageInformationDTOS,
             String body,
             List<File> attachmentList
-    ) {
-        TokenDTO tokenDTO = TokenDTO.fromJson(messageRule.getMessageTemplate().getAccount().getSettings());
-        UserInformationDTO userInformationDTO = tokenServiceMap.get(
-                messageRule.getMessageTemplate().getAccount().getProvider()
-        ).getDecodedToken(tokenDTO);
+    ) throws JsonProcessingException {
+
+        ObjectMapper objectMapper = new ObjectMapper();
         EmailMessageInformationDTO emailMessageInformationDTO =
                 EmailMessageInformationMapper.emailMessageInformationDTO(
                         document,
                         messageRule,
                         body,
-                        attachmentList,
-                        userInformationDTO
+                        attachmentList
                 );
         switch (messageRule.getMessageTemplate().getAccount().getProvider()) {
-            case SMTP -> messageInformationDTOS.add(
-                    EmailMessageInformationMapper.toSMTPEmailMessageInformationDTO(
-                            emailMessageInformationDTO
-                    )
-            );
-            case GMAIL, OUTLOOK -> messageInformationDTOS.add(
+            case SMTP -> {
+                String settings = messageRule.getMessageTemplate().getAccount().getSettings();
+//                settings = settings.substring(0, settings.length() - 1).concat(", \"should_encrypt\": false }");
+                SmtpSettings smtpSettings = objectMapper.readValue(settings, SmtpSettings.class);
+                smtpSettings.decryptPassword();
+                messageInformationDTOS.add(
+                        EmailMessageInformationMapper.toSMTPEmailMessageInformationDTO(
+                                emailMessageInformationDTO,
+                                smtpSettings
+                        )
+                );
+            }
+            case GMAIL, OUTLOOK -> {
+                String settings = messageRule.getMessageTemplate().getAccount().getSettings();
+                OAuthSettings oAuthSettings = objectMapper.readValue(settings, OAuthSettings.class);
+                UserInformationDTO userInformationDTO = tokenServiceMap.get(
+                        messageRule.getMessageTemplate().getAccount().getProvider()
+                ).getDecodedToken(oAuthSettings);
+                messageInformationDTOS.add(
                     EmailMessageInformationMapper.toOAuthEmailMessageInformationDTO(
                             emailMessageInformationDTO,
-                            tokenDTO
+                            oAuthSettings,
+                            userInformationDTO
                     )
-            );
+            );}
         }
         System.out.println("testa");
     }
