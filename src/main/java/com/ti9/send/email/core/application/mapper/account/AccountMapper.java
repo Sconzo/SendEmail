@@ -32,12 +32,8 @@ public class AccountMapper {
         if (Objects.nonNull(body.settings())) {
             settings = ConverterUtils.serializeFirstNonNull(
                     gson,
-                    body.settings().oauthSettings(),
-                    body.settings().proxySettings(),
-                    body.settings().smtpSettings()
+                    body.settings()
             );
-
-
         }
 
         account.setSettings(settings);

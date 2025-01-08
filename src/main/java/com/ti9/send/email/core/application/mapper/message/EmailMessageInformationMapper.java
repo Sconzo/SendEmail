@@ -1,6 +1,7 @@
 package com.ti9.send.email.core.application.mapper.message;
 
-import com.ti9.send.email.core.domain.dto.message.information.TokenDTO;
+import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
+import com.ti9.send.email.core.domain.dto.account.SmtpSettings;
 import com.ti9.send.email.core.domain.dto.message.information.UserInformationDTO;
 import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.dto.message.information.EmailMessageInformationDTO;
@@ -18,11 +19,9 @@ public class EmailMessageInformationMapper {
             DocumentDTO documentDTO,
             MessageRule messageRule,
             String body,
-            List<File> attachments,
-            UserInformationDTO userInformationDTO
+            List<File> attachments
     ) {
         EmailMessageInformationDTO emailMessageInformationDTO = new EmailMessageInformationDTO();
-        emailMessageInformationDTO.setFrom(userInformationDTO.getEmail());
         emailMessageInformationDTO.setToList(Collections.singletonList(documentDTO.billingEmail()));
         emailMessageInformationDTO.setBody(body);
         emailMessageInformationDTO.setAttachment(attachments);
@@ -35,26 +34,28 @@ public class EmailMessageInformationMapper {
     }
 
     public static SMTPEmailMessageInformationDTO toSMTPEmailMessageInformationDTO(
-            EmailMessageInformationDTO emailMessageInformationDTO
+            EmailMessageInformationDTO emailMessageInformationDTO,
+            SmtpSettings smtpSettings
     ) {
+        emailMessageInformationDTO.setFrom(smtpSettings.getUsername());
         SMTPEmailMessageInformationDTO smtpEmailMessageInformationDTO = new SMTPEmailMessageInformationDTO(
                 emailMessageInformationDTO
         );
-        smtpEmailMessageInformationDTO.setUserName("barba");
-        smtpEmailMessageInformationDTO.setPassword("123");
+        smtpEmailMessageInformationDTO.setUsername(smtpSettings.getUsername());
+        smtpEmailMessageInformationDTO.setPassword(smtpSettings.getPassword());
         return smtpEmailMessageInformationDTO;
     }
 
     public static OAuthEmailMessageInformationDTO toOAuthEmailMessageInformationDTO(
             EmailMessageInformationDTO emailMessageInformationDTO,
-            TokenDTO tokenDTO
+            OAuthSettings oAuthSettings,
+            UserInformationDTO userInformationDTO
     ) {
         OAuthEmailMessageInformationDTO oAuthEmailMessageInformationDTO = new OAuthEmailMessageInformationDTO(
                 emailMessageInformationDTO
         );
-        oAuthEmailMessageInformationDTO.setToken(
-                tokenDTO
-        );
+        oAuthEmailMessageInformationDTO.setFrom(userInformationDTO.getEmail());
+        oAuthEmailMessageInformationDTO.setOAuthSettings(oAuthSettings);
         return oAuthEmailMessageInformationDTO;
     }
 
