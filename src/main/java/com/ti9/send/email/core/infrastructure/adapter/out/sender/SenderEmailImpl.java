@@ -1,5 +1,6 @@
 package com.ti9.send.email.core.infrastructure.adapter.out.sender;
 
+import com.ti9.send.email.core.domain.dto.GenericWrapper;
 import com.ti9.send.email.core.domain.dto.message.information.EmailMessageInformationDTO;
 import com.ti9.send.email.core.domain.dto.message.information.OAuthEmailMessageInformationDTO;
 import com.ti9.send.email.core.domain.dto.message.information.SMTPEmailMessageInformationDTO;
@@ -85,7 +86,7 @@ public class SenderEmailImpl implements Sender<EmailMessageInformationDTO> {
             OAuthEmailMessageInformationDTO emailMessageInformationDTO,
             TokenService tokenService
     ) {
-        tokenService.validateAndRenewToken(emailMessageInformationDTO.getOAuthSettings());
+        tokenService.validateAndRenewToken(new GenericWrapper<>(emailMessageInformationDTO.getOAuthSettings()));
         mailSender.setUsername(emailMessageInformationDTO.getFrom());
         mailSender.setPassword(null);
 
