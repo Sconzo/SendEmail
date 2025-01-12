@@ -16,7 +16,6 @@ import java.util.List;
 public class UnstructuredMessage {
     private MessageRule messageRule;
     private DocumentDTO document;
-    private List<MessageInformationDTO> messageInformationDTOS;
     private String body;
     private List<File> attachmentList;
 }
