@@ -1,5 +1,6 @@
 package com.ti9.send.email.core.domain.service.token;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -9,8 +10,12 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.UserCredentials;
+import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.ti9.send.email.core.domain.dto.GenericWrapper;
+import com.ti9.send.email.core.domain.dto.account.AccountSettings;
 import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
 import com.ti9.send.email.core.domain.dto.message.information.UserInformationDTO;
+import com.ti9.send.email.core.domain.model.account.Account;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -38,11 +43,15 @@ public class GmailTokenServiceImpl implements TokenService {
 
 
     @Override
-    public void validateAndRenewToken(OAuthSettings tokenDTO) {
+    public void validateAndRenewToken(GenericWrapper<? extends AccountSettings> accountSettings) {
         try {
-            Credential credential = new GoogleCredential().setAccessToken(tokenDTO.getAccessToken());
+            Credential credential = new GoogleCredential().setAccessToken(((OAuthSettings) accountSettings.getValue()).getAccessToken());
             if (isTokenExpired(credential)) {
-                tokenDTO.setAccessToken(renewAccessToken(tokenDTO.getRefreshToken()));
+                ((OAuthSettings) accountSettings.getValue()).update(
+                        renewAccessToken(
+                                ((OAuthSettings) accountSettings.getValue()).getRefreshToken()
+                        )
+                );
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -50,18 +59,22 @@ public class GmailTokenServiceImpl implements TokenService {
     }
 
     @Override
-    public UserInformationDTO getDecodedToken(OAuthSettings tokenDTO) {
+    public UserInformationDTO getDecodedToken(Account account) {
         UserInformationDTO userInformationDTO = new UserInformationDTO();
-        validateAndRenewToken(tokenDTO);
+        GenericWrapper<AccountSettings> accountSettingsGeneric = new GenericWrapper<>(account.getAccountSettings());
+        this.validateAndRenewToken(accountSettingsGeneric);
         try (HttpClient client = HttpClient.newHttpClient()) {
-            String urlString = "https://www.googleapis.com/oauth2/v3/userinfo?access_token=" + tokenDTO.getAccessToken();
+            String urlString = "https://www.googleapis.com/oauth2/v3/userinfo?access_token="
+                    + ((OAuthSettings) accountSettingsGeneric.getValue()).getAccessToken();
             URI uri = new URI(urlString);
 
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
-                    .header("Authorization", "Bearer " + tokenDTO.getAccessToken())
-                    .build();
+                    .header(
+                            "Authorization",
+                            "Bearer " + ((OAuthSettings) accountSettingsGeneric.getValue()).getAccessToken()
+                    ).build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             userInformationDTO = UserInformationDTO.fromJson(response.body());
@@ -83,16 +96,16 @@ public class GmailTokenServiceImpl implements TokenService {
         }
     }
 
-    private static String renewAccessToken(String refreshToken) throws Exception {
+    private static OAuthSettings renewAccessToken(String refreshToken) throws Exception {
         UserCredentials userCredentials = UserCredentials.newBuilder()
                 .setClientId(CLIENT_ID)
                 .setClientSecret(CLIENT_SECRET)
                 .setRefreshToken(refreshToken)
                 .build();
-        AccessToken newAccessToken = userCredentials.refreshAccessToken();
-        return newAccessToken.getTokenValue();
-    }
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.readValue(userCredentials.refreshAccessToken().toString(), OAuthSettings.class);
+    }
 
 
 }

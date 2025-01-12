@@ -56,7 +56,7 @@ public class MessageTemplate extends UpdatableBaseAudit {
     @OneToMany(mappedBy = "messageTemplate", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<MessageRule> messageRuleList;
 
-    public void update(MessageTemplateRequest request){
+    public void update(MessageTemplateRequest request) {
         this.action = request.action();
         this.account = new Account(request.senderId());
         this.recipientType = request.recipientType();
