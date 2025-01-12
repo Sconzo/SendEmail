@@ -79,7 +79,6 @@ public class NotificationScheduler {
             System.out.println("Tarefa executada: " + System.currentTimeMillis());
             LocalTime currentTime = LocalTime.now();
             String currentHourMinute = currentTime.format(DateTimeFormatter.ofPattern("HH:mm"));
-            List<MessageInformationDTO> messageInformationDTOS = new ArrayList<>();
             Set<String> docTypeSet = new HashSet<>();
             Set<PaymentStatusEnum> paymentStatusEnumSet = new HashSet<>();
             Map<UUID, List<Attach>> attachMap;
@@ -142,7 +141,6 @@ public class NotificationScheduler {
                                 new UnstructuredMessage(
                                         messageRule,
                                         document,
-                                        messageInformationDTOS,
                                         messageTemplateService.formatBodyMessage(
                                                 document,
                                                 messageRule.getMessageTemplate().getBody()
@@ -164,7 +162,6 @@ public class NotificationScheduler {
 
     private void structureTheMessageAndSendIt(UnstructuredMessage unstructuredMessage) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
             EmailMessageInformationDTO emailMessageInformationDTO =
                     EmailMessageInformationMapper.emailMessageInformationDTO(
                             unstructuredMessage.getDocument(),
@@ -174,24 +171,21 @@ public class NotificationScheduler {
                     );
             switch (unstructuredMessage.getMessageRule().getMessageTemplate().getAccount().getProvider()) {
                 case SMTP -> {
-                    SmtpSettings smtpSettings = objectMapper.readValue(
-                            unstructuredMessage.getMessageRule().getMessageTemplate().getAccount().getSettings(),
-                            SmtpSettings.class
-                    );
-
+                    SmtpSettings smtpSettings =
+                            (SmtpSettings) unstructuredMessage.getMessageRule().getMessageTemplate().getAccount()
+                                    .getAccountSettings();
                     smtpSettings.decryptPassword();
-                    unstructuredMessage.getMessageInformationDTOS().add(
+                    emailMessageInformationDTO =
                             EmailMessageInformationMapper.toSMTPEmailMessageInformationDTO(
                                     emailMessageInformationDTO,
                                     smtpSettings
-                            )
-                    );
+                            );
                 }
                 case GMAIL, OUTLOOK -> {
                     UserInformationDTO userInformationDTO = tokenServiceMap.get(
                             unstructuredMessage.getMessageRule().getMessageTemplate().getAccount().getProvider()
                     ).getDecodedToken(unstructuredMessage.getMessageRule().getMessageTemplate().getAccount());
-                    unstructuredMessage.getMessageInformationDTOS().add(
+                    emailMessageInformationDTO =
                             EmailMessageInformationMapper.toOAuthEmailMessageInformationDTO(
                                     emailMessageInformationDTO,
                                     (OAuthSettings) unstructuredMessage
@@ -200,8 +194,7 @@ public class NotificationScheduler {
                                             .getAccount()
                                             .getAccountSettings(),
                                     userInformationDTO
-                            )
-                    );
+                            );
                 }
             }
             senderFacade.send(emailMessageInformationDTO);
