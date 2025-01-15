@@ -15,6 +15,11 @@ public class UserInformationDTO {
     @SerializedName("given_name")
     private String givenName;
     private String picture;
+    // Para Microsoft Graph
+    @SerializedName("mail")
+    private String mail;
+    // Para Google
+    @SerializedName("email")
     private String email;
     @SerializedName("email_verified")
     private boolean emailVerified;
