@@ -86,7 +86,6 @@ public class SenderEmailImpl implements Sender<EmailMessageInformationDTO> {
             OAuthEmailMessageInformationDTO emailMessageInformationDTO,
             TokenService tokenService
     ) {
-        tokenService.validateAndRenewToken(new GenericWrapper<>(emailMessageInformationDTO.getOAuthSettings()));
         mailSender.setUsername(emailMessageInformationDTO.getFrom());
         mailSender.setPassword(null);
 

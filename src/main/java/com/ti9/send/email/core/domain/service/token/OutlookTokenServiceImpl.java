@@ -4,9 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ti9.send.email.core.domain.dto.GenericWrapper;
 import com.ti9.send.email.core.domain.dto.account.AccountSettings;
 import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
-import com.ti9.send.email.core.domain.dto.account.SmtpSettings;
 import com.ti9.send.email.core.domain.dto.message.information.UserInformationDTO;
 import com.ti9.send.email.core.domain.model.account.Account;
+import com.ti9.send.email.core.domain.service.account.AccountService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -17,21 +18,24 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
 @Service("outlookTokenService")
+@AllArgsConstructor
 public class OutlookTokenServiceImpl implements TokenService {
     private static final String CLIENT_ID = "a50d2433-5ff2-4884-aefe-3b42e5c7d8f0";
     private static final String CLIENT_SECRET = "AeD8Q~Xrbc6yOhLOBdnGiyKbwbQJHHwQHZIsEa8Q";
     private static final String AUTHORITY = "https://login.microsoftonline.com/46896ccd-0023-43ab-b568-bef36b50aeb1/oauth2/v2.0/token";
 
+    private final AccountService accountService;
+
     @Override
-    public void validateAndRenewToken(GenericWrapper<? extends AccountSettings> accountSettings) {
+    public Account validateAndRenewToken(Account account) {
         try {
-            if (isTokenExpired(((OAuthSettings) accountSettings.getValue()).getAccessToken())) {
-                ((OAuthSettings) accountSettings.getValue()).update(
-                        renewAccessToken(
-                                ((OAuthSettings) accountSettings.getValue()).getRefreshToken()
-                        )
+            if (isTokenExpired(((OAuthSettings) account.getAccountSettings()).getAccessToken())) {
+               String accessToken = renewAccessToken(
+                        ((OAuthSettings) account.getAccountSettings()).getRefreshToken()
                 );
+               account = accountService.updateAccountSettings(account.getId(), accessToken);
             }
+            return account;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -40,14 +44,13 @@ public class OutlookTokenServiceImpl implements TokenService {
     @Override
     public UserInformationDTO getDecodedToken(Account account) {
         try {
-            GenericWrapper<AccountSettings> accountSettingsGeneric = new GenericWrapper<>(account.getAccountSettings());
-            this.validateAndRenewToken(accountSettingsGeneric);
+            account = this.validateAndRenewToken(account);
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://graph.microsoft.com/v1.0/me"))
                     .header(
                             "Authorization",
-                            "Bearer " + ((OAuthSettings) accountSettingsGeneric.getValue()).getAccessToken()
+                            "Bearer " + ((OAuthSettings) account.getAccountSettings()).getAccessToken()
                     )
                     .header(
                             "Content-Type",
@@ -86,7 +89,7 @@ public class OutlookTokenServiceImpl implements TokenService {
         }
     }
 
-    public OAuthSettings renewAccessToken(String refreshToken) throws Exception {
+    public String renewAccessToken(String refreshToken) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
 
         String body = "client_id=" + URLEncoder.encode(CLIENT_ID, StandardCharsets.UTF_8) +
@@ -103,8 +106,7 @@ public class OutlookTokenServiceImpl implements TokenService {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() == 200) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(response.body(), OAuthSettings.class);
+            return response.body();
         } else {
             throw new RuntimeException("Falha ao renovar o token: " + response.body());
         }

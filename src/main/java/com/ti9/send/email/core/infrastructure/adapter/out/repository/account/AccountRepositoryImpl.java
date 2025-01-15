@@ -12,9 +12,11 @@ import java.util.UUID;
 public class AccountRepositoryImpl implements AccountRepository {
 
     private final JpaAccountRepository jpaRepository;
+    private final AccountJdbcRepository jdbcRepository;
 
-    public AccountRepositoryImpl(JpaAccountRepository jpaRepository) {
+    public AccountRepositoryImpl(JpaAccountRepository jpaRepository, AccountJdbcRepository jdbcRepository) {
         this.jpaRepository = jpaRepository;
+        this.jdbcRepository = jdbcRepository;
     }
 
     @Override
@@ -40,5 +42,10 @@ public class AccountRepositoryImpl implements AccountRepository {
     @Override
     public void changeStatus(UUID uuid) {
         jpaRepository.changeStatus(uuid);
+    }
+
+    @Override
+    public void updateAccountSettings(UUID id, String settings) {
+        jdbcRepository.updateAccountSettings(id, settings);
     }
 }
