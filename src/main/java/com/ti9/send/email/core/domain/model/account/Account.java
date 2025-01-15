@@ -89,7 +89,7 @@ public class Account extends UpdatableBaseAudit {
                     return objectMapper.readValue(this.settings, OAuthSettings.class);
                 }
                 case SMTP -> {
-                    return objectMapper.readValue(this.settings, SmtpSettings.class);
+                    return objectMapper.readValue(this.getSettings(), SmtpSettings.class);
                 }
                 case EXCHANGE -> {
                 }

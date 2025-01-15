@@ -7,6 +7,7 @@ import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
 import com.ti9.send.email.core.domain.dto.message.information.EmailMessageInformationDTO;
 import com.ti9.send.email.core.domain.dto.message.information.OAuthEmailMessageInformationDTO;
 import com.ti9.send.email.core.domain.dto.message.information.SMTPEmailMessageInformationDTO;
+import com.ti9.send.email.core.domain.model.account.enums.ProviderEnum;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
 
 import java.io.File;
@@ -54,7 +55,11 @@ public class EmailMessageInformationMapper {
         OAuthEmailMessageInformationDTO oAuthEmailMessageInformationDTO = new OAuthEmailMessageInformationDTO(
                 emailMessageInformationDTO
         );
-        oAuthEmailMessageInformationDTO.setFrom(userInformationDTO.getEmail());
+        if (ProviderEnum.GMAIL.equals(emailMessageInformationDTO.getProviderType())) {
+            oAuthEmailMessageInformationDTO.setFrom(userInformationDTO.getEmail());
+        } else if (ProviderEnum.OUTLOOK.equals(emailMessageInformationDTO.getProviderType())) {
+            oAuthEmailMessageInformationDTO.setFrom(userInformationDTO.getMail());
+        }
         oAuthEmailMessageInformationDTO.setOAuthSettings(oAuthSettings);
         return oAuthEmailMessageInformationDTO;
     }

@@ -1,12 +1,14 @@
 package com.ti9.send.email.core.domain.dto.account;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OAuthSettings extends AccountSettings {
     private String accessToken;
     private String refreshToken;
