@@ -7,4 +7,6 @@ import java.util.UUID;
 
 public interface AccountRepository extends GenericRepository<Account, UUID> {
     void changeStatus(UUID uuid);
+
+    void updateAccountSettings(UUID id, String settings);
 }
