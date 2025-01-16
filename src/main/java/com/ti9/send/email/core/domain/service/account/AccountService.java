@@ -27,5 +27,5 @@ public interface AccountService {
 
     void changeStatus(UUID uuid);
 
-    Account updateAccountSettings(UUID id, String accountSettings) throws JsonProcessingException;
+    Account updateAccountSettings(UUID id, String accountSettings);
 }

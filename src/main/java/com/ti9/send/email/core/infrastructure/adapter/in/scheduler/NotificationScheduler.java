@@ -1,6 +1,10 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.scheduler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ti9.send.email.core.application.exceptions.AccessTokenVerificationException;
+import com.ti9.send.email.core.application.exceptions.InvalidInputException;
+import com.ti9.send.email.core.application.exceptions.ResourceNotFoundException;
+import com.ti9.send.email.core.application.exceptions.SendEmailException;
 import com.ti9.send.email.core.application.mapper.message.EmailMessageInformationMapper;
 import com.ti9.send.email.core.domain.dto.UnstructuredMessage;
 import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
@@ -155,13 +159,22 @@ public class NotificationScheduler {
                     unstructuredMessageList,
                     this::structureTheMessageAndSendIt
             );
+        } catch (AccessTokenVerificationException e) {
+            System.out.println("Error with token " + e.getMessage());
+        } catch (InvalidInputException e) {
+            System.out.println("Error integrating " + e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            System.out.println("Resource not found error " + e.getMessage());
+        } catch (SendEmailException e) {
+            System.out.println("Error sending email "+ e.getMessage());
+        } catch (RuntimeException e) {
+            System.out.println("Execution error " + e.getMessage());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Unexpected error " + e.getMessage());
         }
     }
 
     private void structureTheMessageAndSendIt(UnstructuredMessage unstructuredMessage) {
-        try {
             EmailMessageInformationDTO emailMessageInformationDTO =
                     EmailMessageInformationMapper.emailMessageInformationDTO(
                             unstructuredMessage.getDocument(),
@@ -198,9 +211,7 @@ public class NotificationScheduler {
                 }
             }
             senderFacade.send(emailMessageInformationDTO);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
     }
 
     private Map<UUID, List<File>> getFiles(Map<UUID, List<Attach>> attachMap) {
