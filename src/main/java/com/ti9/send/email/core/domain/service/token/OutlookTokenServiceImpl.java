@@ -1,8 +1,7 @@
 package com.ti9.send.email.core.domain.service.token;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ti9.send.email.core.domain.dto.GenericWrapper;
-import com.ti9.send.email.core.domain.dto.account.AccountSettings;
+import com.ti9.send.email.core.application.exceptions.AccessTokenVerificationException;
+import com.ti9.send.email.core.application.exceptions.messages.ExceptionMessages;
 import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
 import com.ti9.send.email.core.domain.dto.message.information.UserInformationDTO;
 import com.ti9.send.email.core.domain.model.account.Account;
@@ -28,24 +27,19 @@ public class OutlookTokenServiceImpl implements TokenService {
 
     @Override
     public Account validateAndRenewToken(Account account) {
-        try {
-            if (isTokenExpired(((OAuthSettings) account.getAccountSettings()).getAccessToken())) {
-               String accessToken = renewAccessToken(
-                        ((OAuthSettings) account.getAccountSettings()).getRefreshToken()
-                );
-               account = accountService.updateAccountSettings(account.getId(), accessToken);
-            }
-            return account;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (isTokenExpired(((OAuthSettings) account.getAccountSettings()).getAccessToken())) {
+            String accessToken = renewAccessToken(
+                    ((OAuthSettings) account.getAccountSettings()).getRefreshToken()
+            );
+            account = accountService.updateAccountSettings(account.getId(), accessToken);
         }
+        return account;
     }
 
     @Override
     public UserInformationDTO getDecodedToken(Account account) {
-        try {
+        try (HttpClient client = HttpClient.newHttpClient()) {
             account = this.validateAndRenewToken(account);
-            HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://graph.microsoft.com/v1.0/me"))
                     .header(
@@ -60,22 +54,22 @@ public class OutlookTokenServiceImpl implements TokenService {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
             if (response.statusCode() == 200) {
                 return UserInformationDTO.fromJson(response.body());
             } else if (response.statusCode() == 401) {
-                throw new RuntimeException("Access token inválido ou expirado.");
+                throw new AccessTokenVerificationException(
+                        ExceptionMessages.ACCESS_TOKEN_VERIFICATION_ERROR.getMessage()
+                );
             } else {
-                throw new RuntimeException("Erro ao acessar a API Graph: " + response.body());
+                throw new AccessTokenVerificationException(ExceptionMessages.MICROSOFT_API_ERROR.getMessage());
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new AccessTokenVerificationException(ExceptionMessages.MICROSOFT_API_ERROR.getMessage(), e);
         }
     }
 
     private static boolean isTokenExpired(String accessToken) {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
+        try (HttpClient client = HttpClient.newHttpClient()) {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("https://graph.microsoft.com/v1.0/me"))
                     .header("Authorization", "Bearer " + accessToken)
@@ -85,30 +79,38 @@ public class OutlookTokenServiceImpl implements TokenService {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return response.statusCode() == 401;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new AccessTokenVerificationException(ExceptionMessages.MICROSOFT_API_ERROR.getMessage(), e);
         }
     }
 
-    public String renewAccessToken(String refreshToken) throws Exception {
-        HttpClient client = HttpClient.newHttpClient();
+    public String renewAccessToken(String refreshToken) {
+        HttpResponse<String> response;
+        try (HttpClient client = HttpClient.newHttpClient()) {
 
-        String body = "client_id=" + URLEncoder.encode(CLIENT_ID, StandardCharsets.UTF_8) +
-                "&client_secret=" + URLEncoder.encode(CLIENT_SECRET, StandardCharsets.UTF_8) +
-                "&refresh_token=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8) +
-                "&grant_type=refresh_token";
+            String body = "client_id=" + URLEncoder.encode(CLIENT_ID, StandardCharsets.UTF_8) +
+                    "&client_secret=" + URLEncoder.encode(CLIENT_SECRET, StandardCharsets.UTF_8) +
+                    "&refresh_token=" + URLEncoder.encode(refreshToken, StandardCharsets.UTF_8) +
+                    "&grant_type=refresh_token";
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(AUTHORITY))
-                .header("Content-Type", "application/x-www-form-urlencoded")
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(AUTHORITY))
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .POST(HttpRequest.BodyPublishers.ofString(body))
+                    .build();
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() == 200) {
-            return response.body();
-        } else {
-            throw new RuntimeException("Falha ao renovar o token: " + response.body());
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                return response.body();
+            } else {
+                throw new AccessTokenVerificationException(
+                        ExceptionMessages.ERROR_RENEWING_ACCESS_TOKEN_USING_REFRESH_TOKEN.getMessage()
+                );
+            }
+        } catch (Exception e) {
+            throw new AccessTokenVerificationException(
+                    ExceptionMessages.ERROR_RENEWING_ACCESS_TOKEN_USING_REFRESH_TOKEN.getMessage(),
+                    e
+            );
         }
     }
 }

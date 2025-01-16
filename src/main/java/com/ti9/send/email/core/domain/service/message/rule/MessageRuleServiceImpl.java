@@ -1,6 +1,7 @@
 package com.ti9.send.email.core.domain.service.message.rule;
 
 import com.ti9.send.email.core.application.exceptions.ResourceNotFoundException;
+import com.ti9.send.email.core.application.exceptions.messages.ExceptionMessages;
 import com.ti9.send.email.core.application.mapper.message.MessageRuleMapper;
 import com.ti9.send.email.core.application.port.out.message.rule.MessageRuleRepository;
 import com.ti9.send.email.core.domain.dto.DataListWrapper;
@@ -41,7 +42,12 @@ public class MessageRuleServiceImpl implements MessageRuleService {
         if (messageOptional.isPresent()) {
             return new DataWrapper<>(MessageRuleMapper.toDTO(messageOptional.get()));
         } else {
-            throw new ResourceNotFoundException("Message with id " + uuid + " not found.");
+            throw new ResourceNotFoundException(
+                    ResourceNotFoundException.resourceMessage(
+                            ExceptionMessages.MESSAGE_RULE_NOT_FOUND.getMessage(),
+                            String.valueOf(uuid)
+                    )
+            );
         }
     }
 
@@ -53,7 +59,12 @@ public class MessageRuleServiceImpl implements MessageRuleService {
             messageRule.update(request);
             return new DataWrapper<>(MessageRuleMapper.toDTO(repository.save(messageRule)));
         } else {
-            throw new ResourceNotFoundException("Message with id " + uuid + " not found.");
+            throw new ResourceNotFoundException(
+                    ResourceNotFoundException.resourceMessage(
+                            ExceptionMessages.MESSAGE_RULE_NOT_FOUND.getMessage(),
+                            String.valueOf(uuid)
+                    )
+            );
         }
     }
 
@@ -63,7 +74,7 @@ public class MessageRuleServiceImpl implements MessageRuleService {
     }
 
     @Override
-    public List<MessageRule> getActiveRules(String currentHourMinute){
+    public List<MessageRule> getActiveRules(String currentHourMinute) {
         return repository.findActiveTemplates(currentHourMinute);
     }
 
@@ -82,7 +93,12 @@ public class MessageRuleServiceImpl implements MessageRuleService {
         Optional<MessageRule> messageRuleOptional = repository.findById(uuid);
 
         if (messageRuleOptional.isEmpty()) {
-            throw new ResourceNotFoundException("Message Rule not found");
+            throw new ResourceNotFoundException(
+                    ResourceNotFoundException.resourceMessage(
+                            ExceptionMessages.MESSAGE_RULE_NOT_FOUND.getMessage(),
+                            String.valueOf(uuid)
+                    )
+            );
         }
     }
 }
