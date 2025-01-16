@@ -11,6 +11,8 @@ import com.google.api.services.gmail.Gmail;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.UserCredentials;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
+import com.ti9.send.email.core.application.exceptions.AccessTokenVerificationException;
+import com.ti9.send.email.core.application.exceptions.messages.ExceptionMessages;
 import com.ti9.send.email.core.domain.dto.GenericWrapper;
 import com.ti9.send.email.core.domain.dto.account.AccountSettings;
 import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
@@ -49,23 +51,20 @@ public class GmailTokenServiceImpl implements TokenService {
 
     @Override
     public Account validateAndRenewToken(Account account) {
-        try {
-            Credential credential = new GoogleCredential().setAccessToken(((OAuthSettings) account.getAccountSettings()).getAccessToken());
-            if (isTokenExpired(credential)) {
-                String accessToken = renewAccessToken(
-                                ((OAuthSettings) account.getAccountSettings()).getRefreshToken()
-                        );
-                account = accountService.updateAccountSettings(account.getId(), accessToken);
-            }
-            return account;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+
+        Credential credential = new GoogleCredential().setAccessToken(((OAuthSettings) account.getAccountSettings()).getAccessToken());
+        if (isTokenExpired(credential)) {
+            String accessToken = renewAccessToken(
+                    ((OAuthSettings) account.getAccountSettings()).getRefreshToken()
+            );
+            account = accountService.updateAccountSettings(account.getId(), accessToken);
         }
+        return account;
     }
 
     @Override
     public UserInformationDTO getDecodedToken(Account account) {
-        UserInformationDTO userInformationDTO = new UserInformationDTO();
+        UserInformationDTO userInformationDTO;
         account = this.validateAndRenewToken(account);
         try (HttpClient client = HttpClient.newHttpClient()) {
             String urlString = "https://www.googleapis.com/oauth2/v3/userinfo?access_token="
@@ -83,7 +82,7 @@ public class GmailTokenServiceImpl implements TokenService {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             userInformationDTO = UserInformationDTO.fromJson(response.body());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new AccessTokenVerificationException(ExceptionMessages.GOOGLE_API_ERROR.getMessage(), e);
         }
         return userInformationDTO;
     }
@@ -96,17 +95,27 @@ public class GmailTokenServiceImpl implements TokenService {
             gmailService.users().getProfile("me").execute();
             return false;
         } catch (IOException e) {
-            return e.getMessage().contains("\"code\" : 401");
+            if (e.getMessage().contains("\"code\" : 401")) {
+                return true;
+            }
+            throw new AccessTokenVerificationException(ExceptionMessages.GOOGLE_API_ERROR.getMessage(), e);
         }
     }
 
-    private static String renewAccessToken(String refreshToken) throws Exception {
+    private static String renewAccessToken(String refreshToken) {
         UserCredentials userCredentials = UserCredentials.newBuilder()
                 .setClientId(CLIENT_ID)
                 .setClientSecret(CLIENT_SECRET)
                 .setRefreshToken(refreshToken)
                 .build();
-        return userCredentials.refreshAccessToken().toString();
+        try {
+            return userCredentials.refreshAccessToken().toString();
+        } catch (IOException e) {
+            throw new AccessTokenVerificationException(
+                    ExceptionMessages.ERROR_RENEWING_ACCESS_TOKEN_USING_REFRESH_TOKEN.getMessage(),
+                    e
+            );
+        }
     }
 
 
