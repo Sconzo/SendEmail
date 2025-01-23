@@ -21,7 +21,7 @@ import java.util.Properties;
 @Component
 public class SenderEmailImpl implements Sender<EmailMessageInformationDTO> {
 
-    private final Map<ProviderEnum, JavaMailSender> mailSenders;
+    private final Map<String, JavaMailSender> mailSenders;
     private final Map<ProviderEnum, TokenService> tokenServiceMap;
 
     @Autowired
@@ -29,13 +29,15 @@ public class SenderEmailImpl implements Sender<EmailMessageInformationDTO> {
             @Qualifier("oAuthGmailMailSender") JavaMailSender oAuthGmailMailSender,
             @Qualifier("outlookMailSender") JavaMailSender outlookSender,
             @Qualifier("smtpGmailMailSender") JavaMailSender smtpGmailMailSender,
+            @Qualifier("smtpOutlookMailSender") JavaMailSender smtpOutlookMailSender,
             @Qualifier("gmailTokenService") TokenService gmailTokenService,
             @Qualifier("outlookTokenService") TokenService outlookTokenService
     ) {
         this.mailSenders = Map.of(
-                ProviderEnum.GMAIL, oAuthGmailMailSender,
-                ProviderEnum.OUTLOOK, outlookSender,
-                ProviderEnum.SMTP, smtpGmailMailSender
+                "OAUTH_GMAIL", oAuthGmailMailSender,
+                "OAUTH_OUTLOOK", outlookSender,
+                "SMTP_GMAIL", smtpGmailMailSender,
+                "SMTP_OUTLOOK", smtpOutlookMailSender
         );
         this.tokenServiceMap = Map.of(
                 ProviderEnum.GMAIL, gmailTokenService,

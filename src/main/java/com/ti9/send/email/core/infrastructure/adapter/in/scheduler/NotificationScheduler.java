@@ -73,7 +73,7 @@ public class NotificationScheduler {
         );
     }
 
-    //@Scheduled(cron = "${process.messages.cron.expression}")
+    @Scheduled(cron = "${process.messages.cron.expression}")
     public void processMessages() {
         try {
             System.out.println("Tarefa executada: " + System.currentTimeMillis());
