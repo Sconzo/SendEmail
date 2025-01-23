@@ -6,6 +6,8 @@ import com.ti9.send.email.core.infrastructure.adapter.utils.EncryptUtils;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 public class SmtpSettings extends AccountSettings {
@@ -24,11 +26,11 @@ public class SmtpSettings extends AccountSettings {
             @JsonProperty("port") int port,
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
-            @JsonProperty(value = "should_encrypt", defaultValue = "true") boolean shouldEncrypt
+            @JsonProperty(value = "should_encrypt", defaultValue = "true") Boolean shouldEncrypt
     ) {
         super("SMTP");
         this.username = username;
-        this.password = shouldEncrypt ? EncryptUtils.encrypt(password) : password;
+        this.password = (Objects.isNull(shouldEncrypt) || Boolean.TRUE.equals(shouldEncrypt)) ? EncryptUtils.encrypt(password) : password;
         this.host = host;
         this.port = port;
     }
