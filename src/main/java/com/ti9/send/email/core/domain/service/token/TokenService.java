@@ -1,11 +1,11 @@
 package com.ti9.send.email.core.domain.service.token;
 
-import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
 import com.ti9.send.email.core.domain.dto.message.information.UserInformationDTO;
+import com.ti9.send.email.core.domain.model.account.Account;
 
 public interface TokenService {
 
-    void validateAndRenewToken(OAuthSettings tokenDTO);
+    Account validateAndRenewToken(Account account);
 
-    UserInformationDTO getDecodedToken(OAuthSettings tokenDTO);
+    UserInformationDTO getDecodedToken(Account account);
 }
