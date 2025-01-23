@@ -1,5 +1,10 @@
 package com.ti9.send.email.core.domain.model.account;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ti9.send.email.core.domain.dto.account.AccountSettings;
+import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
+import com.ti9.send.email.core.domain.dto.account.SmtpSettings;
 import com.ti9.send.email.core.domain.model.UpdatableBaseAudit;
 import com.ti9.send.email.core.domain.model.enums.StatusEnum;
 import com.ti9.send.email.core.domain.model.account.enums.ProviderEnum;
@@ -74,5 +79,24 @@ public class Account extends UpdatableBaseAudit {
 
     public String getSettings() {
         return this.settings.substring(0, this.settings.length() - 1).concat(", \"should_encrypt\": false }");
+    }
+
+    public AccountSettings getAccountSettings() {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            switch (this.provider) {
+                case GMAIL,OUTLOOK -> {
+                    return objectMapper.readValue(this.settings, OAuthSettings.class);
+                }
+                case SMTP -> {
+                    return objectMapper.readValue(this.getSettings(), SmtpSettings.class);
+                }
+                case EXCHANGE -> {
+                }
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 }

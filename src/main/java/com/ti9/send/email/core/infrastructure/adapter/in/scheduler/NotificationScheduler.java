@@ -1,9 +1,12 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.scheduler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ti9.send.email.core.application.exceptions.AccessTokenVerificationException;
+import com.ti9.send.email.core.application.exceptions.InvalidInputException;
+import com.ti9.send.email.core.application.exceptions.ResourceNotFoundException;
+import com.ti9.send.email.core.application.exceptions.SendEmailException;
 import com.ti9.send.email.core.application.mapper.message.EmailMessageInformationMapper;
-import com.ti9.send.email.core.domain.dto.account.AccountSettings;
+import com.ti9.send.email.core.domain.dto.UnstructuredMessage;
 import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
 import com.ti9.send.email.core.domain.dto.account.SmtpSettings;
 import com.ti9.send.email.core.domain.dto.message.information.UserInformationDTO;
@@ -23,6 +26,7 @@ import com.ti9.send.email.core.domain.service.document.DocumentService;
 import com.ti9.send.email.core.domain.service.inbox.InboxService;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
 import com.ti9.send.email.core.domain.service.message.template.MessageTemplateService;
+import com.ti9.send.email.core.domain.service.tasks.TaskExecutorService;
 import com.ti9.send.email.core.domain.service.token.TokenService;
 import com.ti9.send.email.core.infrastructure.adapter.out.sender.SenderFacade;
 import com.ti9.send.email.core.infrastructure.adapter.utils.DateUtils;
@@ -79,26 +83,21 @@ public class NotificationScheduler {
             System.out.println("Tarefa executada: " + System.currentTimeMillis());
             LocalTime currentTime = LocalTime.now();
             String currentHourMinute = currentTime.format(DateTimeFormatter.ofPattern("HH:mm"));
-            List<MessageInformationDTO> messageInformationDTOS = new ArrayList<>();
             Set<String> docTypeSet = new HashSet<>();
             Set<PaymentStatusEnum> paymentStatusEnumSet = new HashSet<>();
             Map<UUID, List<Attach>> attachMap;
             Map<UUID, List<File>> refIdsAndFileMap;
-
+            List<UnstructuredMessage> unstructuredMessageList = new ArrayList<>();
             List<MessageRule> messageRuleList = messageRuleService.getActiveRules(currentHourMinute);
-
             List<Inbox> inboxList = inboxService.listInboxByAccountIds(
                     messageRuleList.stream().map(messageRule ->
                             messageRule.getMessageTemplate().getAccount().getId()
                     ).toList()
             );
-
-
             for (MessageRule messageRule : messageRuleList) {
                 docTypeSet.addAll(messageRule.getDocType());
                 paymentStatusEnumSet.addAll(messageRule.getDocStatus());
             }
-
             attachMap = attachLinkServiceImpl.findAttachLinkByRefIds(
                     inboxList.stream().flatMap(inbox ->
                             inbox.getInboxLinkList().stream().map(InboxLink::getRefId)
@@ -109,7 +108,6 @@ public class NotificationScheduler {
                     docTypeSet.stream().toList(),
                     paymentStatusEnumSet.stream().toList()
             );
-
             for (MessageRule messageRule : messageRuleList) {
                 boolean shouldBeSent = false;
                 DateRuleEnum dateRule = messageRule.getDateRule();
@@ -143,71 +141,77 @@ public class NotificationScheduler {
                         shouldBeSent = messageRule.getSelectedDay().contains((short) calendarDayDifference);
                     }
                     if (shouldBeSent) {
-                        defineMessageTypeAndPopulateMessageInformationDTO(
-                                messageRule,
-                                document,
-                                messageInformationDTOS,
-                                messageBodyBuilder(messageRule, document),
-                                attachmentList
+                        unstructuredMessageList.add(
+                                new UnstructuredMessage(
+                                        messageRule,
+                                        document,
+                                        messageTemplateService.formatBodyMessage(
+                                                document,
+                                                messageRule.getMessageTemplate().getBody()
+                                        ),
+                                        attachmentList
+                                )
                         );
                     }
                 }
             }
-            senderFacade.send(messageInformationDTOS);
-            System.out.println("teste");
+            TaskExecutorService.executeTasksInParallelAndWaitForThemAllToFinish(
+                    unstructuredMessageList,
+                    this::structureTheMessageAndSendIt
+            );
+        } catch (AccessTokenVerificationException e) {
+            System.out.println("Error with token " + e.getMessage());
+        } catch (InvalidInputException e) {
+            System.out.println("Error integrating " + e.getMessage());
+        } catch (ResourceNotFoundException e) {
+            System.out.println("Resource not found error " + e.getMessage());
+        } catch (SendEmailException e) {
+            System.out.println("Error sending email "+ e.getMessage());
+        } catch (RuntimeException e) {
+            System.out.println("Execution error " + e.getMessage());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println("Unexpected error " + e.getMessage());
         }
     }
 
-    private void defineMessageTypeAndPopulateMessageInformationDTO(
-            MessageRule messageRule,
-            DocumentDTO document,
-            List<MessageInformationDTO> messageInformationDTOS,
-            String body,
-            List<File> attachmentList
-    ) throws JsonProcessingException {
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        EmailMessageInformationDTO emailMessageInformationDTO =
-                EmailMessageInformationMapper.emailMessageInformationDTO(
-                        document,
-                        messageRule,
-                        body,
-                        attachmentList
-                );
-        switch (messageRule.getMessageTemplate().getAccount().getProvider()) {
-            case SMTP -> {
-                String settings = messageRule.getMessageTemplate().getAccount().getSettings();
-//                settings = settings.substring(0, settings.length() - 1).concat(", \"should_encrypt\": false }");
-                SmtpSettings smtpSettings = objectMapper.readValue(settings, SmtpSettings.class);
-                smtpSettings.decryptPassword();
-                messageInformationDTOS.add(
-                        EmailMessageInformationMapper.toSMTPEmailMessageInformationDTO(
-                                emailMessageInformationDTO,
-                                smtpSettings
-                        )
-                );
+    private void structureTheMessageAndSendIt(UnstructuredMessage unstructuredMessage) {
+            EmailMessageInformationDTO emailMessageInformationDTO =
+                    EmailMessageInformationMapper.emailMessageInformationDTO(
+                            unstructuredMessage.getDocument(),
+                            unstructuredMessage.getMessageRule(),
+                            unstructuredMessage.getBody(),
+                            unstructuredMessage.getAttachmentList()
+                    );
+            switch (unstructuredMessage.getMessageRule().getMessageTemplate().getAccount().getProvider()) {
+                case SMTP -> {
+                    SmtpSettings smtpSettings =
+                            (SmtpSettings) unstructuredMessage.getMessageRule().getMessageTemplate().getAccount()
+                                    .getAccountSettings();
+                    smtpSettings.decryptPassword();
+                    emailMessageInformationDTO =
+                            EmailMessageInformationMapper.toSMTPEmailMessageInformationDTO(
+                                    emailMessageInformationDTO,
+                                    smtpSettings
+                            );
+                }
+                case GMAIL, OUTLOOK -> {
+                    UserInformationDTO userInformationDTO = tokenServiceMap.get(
+                            unstructuredMessage.getMessageRule().getMessageTemplate().getAccount().getProvider()
+                    ).getDecodedToken(unstructuredMessage.getMessageRule().getMessageTemplate().getAccount());
+                    emailMessageInformationDTO =
+                            EmailMessageInformationMapper.toOAuthEmailMessageInformationDTO(
+                                    emailMessageInformationDTO,
+                                    (OAuthSettings) unstructuredMessage
+                                            .getMessageRule()
+                                            .getMessageTemplate()
+                                            .getAccount()
+                                            .getAccountSettings(),
+                                    userInformationDTO
+                            );
+                }
             }
-            case GMAIL, OUTLOOK -> {
-                String settings = messageRule.getMessageTemplate().getAccount().getSettings();
-                OAuthSettings oAuthSettings = objectMapper.readValue(settings, OAuthSettings.class);
-                UserInformationDTO userInformationDTO = tokenServiceMap.get(
-                        messageRule.getMessageTemplate().getAccount().getProvider()
-                ).getDecodedToken(oAuthSettings);
-                messageInformationDTOS.add(
-                    EmailMessageInformationMapper.toOAuthEmailMessageInformationDTO(
-                            emailMessageInformationDTO,
-                            oAuthSettings,
-                            userInformationDTO
-                    )
-            );}
-        }
-        System.out.println("testa");
-    }
+            senderFacade.send(emailMessageInformationDTO);
 
-    private String messageBodyBuilder(MessageRule messageRule, DocumentDTO document) {
-        return messageTemplateService.formatBodyMessage(document, messageRule.getMessageTemplate().getBody());
     }
 
     private Map<UUID, List<File>> getFiles(Map<UUID, List<Attach>> attachMap) {
@@ -215,9 +219,9 @@ public class NotificationScheduler {
         attachMap.forEach((uuid, attachList) -> {
             List<File> fileBytesList = new ArrayList<>();
             attachList.parallelStream().forEach(attach -> {
-                    Path filePath = Path.of(attach.getFolderName(), attach.getFilename());
-                    File file = filePath.toFile();
-                    fileBytesList.add(file);
+                Path filePath = Path.of(attach.getFolderName(), attach.getFilename());
+                File file = filePath.toFile();
+                fileBytesList.add(file);
 
             });
             refIdAndFileBytesMap.put(uuid, fileBytesList);

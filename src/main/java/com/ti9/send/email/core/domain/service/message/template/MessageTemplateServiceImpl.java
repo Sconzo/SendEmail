@@ -1,6 +1,7 @@
 package com.ti9.send.email.core.domain.service.message.template;
 
 import com.ti9.send.email.core.application.exceptions.ResourceNotFoundException;
+import com.ti9.send.email.core.application.exceptions.messages.ExceptionMessages;
 import com.ti9.send.email.core.application.mapper.message.MessageTemplateMapper;
 import com.ti9.send.email.core.application.port.out.message.template.MessageTemplateRepository;
 import com.ti9.send.email.core.domain.dto.DataListWrapper;
@@ -18,7 +19,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
-public class MessageTemplateServiceImpl implements MessageTemplateService{
+public class MessageTemplateServiceImpl implements MessageTemplateService {
 
     private final MessageTemplateRepository repository;
     private final MessageRuleService messageRuleService;
@@ -33,10 +34,12 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
 
         messageRuleService.verifyIfRuleExists(request.messageRuleId());
 
-        MessageTemplateDTO messageTemplateDTO = MessageTemplateMapper.toDTO(repository.save(MessageTemplateMapper.toEntity(request)));
+        MessageTemplateDTO messageTemplateDTO = MessageTemplateMapper.toDTO(
+                repository.save(MessageTemplateMapper.toEntity(request))
+        );
 
         messageRuleService.setTemplateId(messageTemplateDTO.id(), request.messageRuleId());
-        
+
         return new DataWrapper<>(messageTemplateDTO);
     }
 
@@ -48,8 +51,16 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
 
     @Override
     public DataWrapper<MessageTemplateDTO> getMessageTemplate(UUID uuid) {
-        return new DataWrapper<>(MessageTemplateMapper.toDTO(repository.findById(uuid).orElseThrow(
-                        () -> new ResourceNotFoundException("Message template with id " + uuid + " not found."))));
+        return new DataWrapper<>(MessageTemplateMapper.toDTO(
+                repository.findById(uuid).orElseThrow(
+                        () -> new ResourceNotFoundException(
+                                ResourceNotFoundException.resourceMessage(
+                                        ExceptionMessages.MESSAGE_TEMPLATE_NOT_FOUND.getMessage(),
+                                        String.valueOf(uuid)
+                                )
+                        )
+                )
+        ));
     }
 
     @Override
@@ -60,7 +71,12 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
             messageTemplate.update(request);
             return new DataWrapper<>(MessageTemplateMapper.toDTO(repository.save(messageTemplate)));
         } else {
-            throw new ResourceNotFoundException("Message template with id " + uuid + " not found.");
+            throw new ResourceNotFoundException(
+                    ResourceNotFoundException.resourceMessage(
+                            ExceptionMessages.MESSAGE_TEMPLATE_NOT_FOUND.getMessage(),
+                            String.valueOf(uuid)
+                    )
+            );
         }
     }
 
@@ -85,7 +101,7 @@ public class MessageTemplateServiceImpl implements MessageTemplateService{
     public DataWrapper<MessageTemplateDTO> getMessageTemplateByRuleId(UUID ruleId) {
         MessageTemplate modelByRuleId = repository.findModelByRuleId(ruleId);
 
-        if(Objects.nonNull(modelByRuleId)) {
+        if (Objects.nonNull(modelByRuleId)) {
             return new DataWrapper<>(MessageTemplateMapper.toDTO(modelByRuleId));
         } else {
             return new DataWrapper<>(null);
