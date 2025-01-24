@@ -6,6 +6,8 @@ import com.ti9.send.email.core.domain.dto.message.information.EmailMessageInform
 import com.ti9.send.email.core.domain.dto.message.information.OAuthEmailMessageInformationDTO;
 import com.ti9.send.email.core.domain.dto.message.information.SMTPEmailMessageInformationDTO;
 import com.ti9.send.email.core.domain.model.account.enums.ProviderEnum;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -104,13 +106,25 @@ public class SenderEmailImpl implements Sender<EmailMessageInformationDTO> {
             JavaMailSenderImpl mailSender,
             SMTPEmailMessageInformationDTO emailMessageInformationDTO
     ) {
-        mailSender.setUsername(emailMessageInformationDTO.getFrom());
-        mailSender.setPassword(emailMessageInformationDTO.getPassword());
+        final String username = emailMessageInformationDTO.getUsername();
+        final String password = emailMessageInformationDTO.getPassword();
+        mailSender.setUsername(username);
+        mailSender.setPassword(password);
 
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.starttls.required", "true");
+        Properties prop = new Properties();
+        prop.put("mail.smtp.host", "smtp.gmail.com");
+        prop.put("mail.smtp.port", "465");
+        prop.put("mail.smtp.auth", "true");
+        prop.put("mail.smtp.socketFactory.port", "465");
+        prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+
+        Session session = Session.getInstance(prop,
+                new jakarta.mail.Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(username, password);
+                    }
+                });
+
+        mailSender.setSession(session);
     }
 }
