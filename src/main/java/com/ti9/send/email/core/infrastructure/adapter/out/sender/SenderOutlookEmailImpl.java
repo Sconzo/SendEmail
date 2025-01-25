@@ -2,27 +2,39 @@ package com.ti9.send.email.core.infrastructure.adapter.out.sender;
 
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
+import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
 import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.GraphServiceClient;
-import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
+import com.ti9.send.email.core.domain.dto.account.AccountSettings;
+import org.springframework.beans.factory.annotation.Value;
 
-import com.ti9.send.email.core.domain.dto.message.information.OAuthEmailMessageInformationDTO;
-
+import java.io.File;
 import java.util.Collections;
+import java.util.List;
 
-public class SenderOutlookEmailImpl implements Sender<OAuthEmailMessageInformationDTO> {
+public class SenderOutlookEmailImpl implements Sender {
 
     String clientId = "SEU_CLIENT_ID";
     String clientSecret = "SEU_CLIENT_SECRET";
     String tenantId = "SEU_TENANT_ID";
+    @Value("${from}")
+    private String from;
 
     @Override
-    public void send(OAuthEmailMessageInformationDTO oAuthEmailMessageInformationDTO) {
+    public void send(
+            java.util.List<String> recipientList,
+            java.util.List<String> ccRecipentList,
+            java.util.List<String> bccRecipentList,
+            String subject,
+            String body,
+            List<File> fileList,
+            AccountSettings accountSettings
+    ) {
         GraphServiceClient<?> graphClient = getGraphClient();
         Message message = new Message();
 
         message.toRecipients =
-                oAuthEmailMessageInformationDTO.getToList().stream().map(email -> {
+                recipientList.stream().map(email -> {
                     Recipient recipient = new Recipient();
                     EmailAddress emailAddress = new EmailAddress();
                     emailAddress.address = email;
@@ -31,7 +43,7 @@ public class SenderOutlookEmailImpl implements Sender<OAuthEmailMessageInformati
                 }).toList();
 
         message.ccRecipients =
-                oAuthEmailMessageInformationDTO.getCarbonCopy().stream().map(email -> {
+                ccRecipentList.stream().map(email -> {
                     Recipient recipient = new Recipient();
                     EmailAddress emailAddress = new EmailAddress();
                     emailAddress.address = email;
@@ -40,7 +52,7 @@ public class SenderOutlookEmailImpl implements Sender<OAuthEmailMessageInformati
                 }).toList();
 
         message.bccRecipients =
-                oAuthEmailMessageInformationDTO.getBlindCarbonCopy().stream().map(email -> {
+                bccRecipentList.stream().map(email -> {
                     Recipient recipient = new Recipient();
                     EmailAddress emailAddress = new EmailAddress();
                     emailAddress.address = email;
@@ -49,16 +61,16 @@ public class SenderOutlookEmailImpl implements Sender<OAuthEmailMessageInformati
                 }).toList();
 
 
-        message.subject = oAuthEmailMessageInformationDTO.getSubject();
+        message.subject = subject;
 
         ItemBody itemBody = new ItemBody();
-        itemBody.content = oAuthEmailMessageInformationDTO.getBody();
+        itemBody.content = body;
         itemBody.contentType = BodyType.TEXT;
         message.body = itemBody;
 
         message.from = new Recipient();
         message.from.emailAddress = new com.microsoft.graph.models.EmailAddress();
-        message.from.emailAddress.address = oAuthEmailMessageInformationDTO.getFrom();
+        message.from.emailAddress.address = from;
 
         graphClient.me().sendMail(UserSendMailParameterSet.newBuilder()
                         .withMessage(message)
