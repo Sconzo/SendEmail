@@ -1,7 +1,5 @@
 package com.ti9.send.email.core.domain.service.account;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -15,7 +13,6 @@ import com.google.api.services.gmail.GmailScopes;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.google.gson.Gson;
 import com.ti9.send.email.core.application.exceptions.InvalidInputException;
 import com.ti9.send.email.core.application.exceptions.ResourceNotFoundException;
 import com.ti9.send.email.core.application.exceptions.messages.ExceptionMessages;
@@ -26,9 +23,7 @@ import com.ti9.send.email.core.domain.dto.DataWrapper;
 import com.ti9.send.email.core.domain.dto.account.AccountRequest;
 import com.ti9.send.email.core.domain.dto.account.AccountResponse;
 import com.ti9.send.email.core.domain.dto.account.AssociateAccountRequest;
-import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
 import com.ti9.send.email.core.domain.model.account.Account;
-import com.ti9.send.email.core.infrastructure.adapter.utils.ConverterUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -144,43 +139,5 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void changeStatus(UUID uuid) {
         repository.changeStatus(uuid);
-    }
-
-    @Override
-    public Account updateAccountSettings(UUID id, String accountSettings){
-        Account account;
-        ObjectMapper objectMapper = new ObjectMapper();
-        OAuthSettings oAuthSettings;
-        try {
-            oAuthSettings = objectMapper.readValue(accountSettings, OAuthSettings.class);
-        } catch (JsonProcessingException e) {
-            throw new InvalidInputException(
-                    ExceptionMessages.ACCOUNT_SETTINGS_JSON_INVALID_FOR_OAUTH_SETTINGS.getMessage(),
-                    e
-            );
-        }
-        String settings = ConverterUtils.serializeFirstNonNull(
-                new Gson(),
-                oAuthSettings
-        );
-        repository.updateAccountSettings(id, settings);
-        Optional<Account> accountOptional = repository.findById(id);
-        if (accountOptional.isPresent()) {
-            account = accountOptional.get();
-        } else {
-            throw new ResourceNotFoundException(
-                    ResourceNotFoundException.resourceMessage(
-                            ExceptionMessages.ACCOUNT_NOT_FOUND.getMessage(),
-                            String.valueOf(id)
-                    )
-            );
-        }
-        if (Objects.isNull(account.getId())) {
-            throw new ResourceNotFoundException(ResourceNotFoundException.resourceMessage(
-                    ExceptionMessages.ACCOUNT_NOT_FOUND.getMessage(),
-                    String.valueOf(id)
-            ));
-        }
-        return account;
     }
 }
