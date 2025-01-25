@@ -1,7 +1,6 @@
 package com.ti9.send.email.core.domain.dto;
 
 import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
-import com.ti9.send.email.core.domain.dto.message.information.MessageInformationDTO;
 import com.ti9.send.email.core.domain.model.message.MessageRule;
 import lombok.AllArgsConstructor;
 import lombok.Data;
