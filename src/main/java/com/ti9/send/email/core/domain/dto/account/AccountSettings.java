@@ -13,7 +13,6 @@ import lombok.Setter;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = SmtpSettings.class, name = "SMTP"),
         @JsonSubTypes.Type(value = ProxySettings.class, name = "PROXY"),
-        @JsonSubTypes.Type(value = OAuthSettings.class, name = "OAUTH")
 })
 @Getter
 @Setter
