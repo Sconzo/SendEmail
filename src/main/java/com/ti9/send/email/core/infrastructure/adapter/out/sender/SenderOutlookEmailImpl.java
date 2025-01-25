@@ -7,17 +7,22 @@ import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.ti9.send.email.core.domain.dto.account.AccountSettings;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
+@Component
 public class SenderOutlookEmailImpl implements Sender {
 
-    String clientId = "SEU_CLIENT_ID";
-    String clientSecret = "SEU_CLIENT_SECRET";
-    String tenantId = "SEU_TENANT_ID";
-    @Value("${from}")
+    @Value("${outlook.client.id}")
+    private String clientId;
+    @Value("${outlook.client.secret}")
+    private String clientSecret;
+    @Value("${outlook.tenant.id}")
+    private String tenantId;
+    @Value("${outlook.from}")
     private String from;
 
     @Override
@@ -89,7 +94,9 @@ public class SenderOutlookEmailImpl implements Sender {
                 .build();
 
         TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(
-                Collections.singletonList("https://graph.microsoft.com/.default"), clientSecretCredential);
+                Collections.singletonList("https://graph.microsoft.com/.default"),
+                clientSecretCredential
+        );
 
         return GraphServiceClient.builder()
                 .authenticationProvider(authProvider)
