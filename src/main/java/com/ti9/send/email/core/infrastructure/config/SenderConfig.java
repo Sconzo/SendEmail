@@ -1,16 +1,21 @@
 package com.ti9.send.email.core.infrastructure.config;
 
 import com.ti9.send.email.core.infrastructure.adapter.out.sender.Sender;
-import com.ti9.send.email.core.infrastructure.adapter.out.sender.SenderEmailImpl;
+import com.ti9.send.email.core.infrastructure.adapter.out.sender.SenderOutlookEmailImpl;
+import com.ti9.send.email.core.infrastructure.adapter.out.sender.SenderSMTPEmailImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import java.util.List;
 
 @Configuration
 public class SenderConfig {
 
-    @Bean
-    public List<Sender<?>> senders(SenderEmailImpl senderEmailImpl) {
-        return List.of(senderEmailImpl);
+    @Bean(name = "senderSMTPEmailImpl")
+    public Sender senderSMTPEmailImpl(SenderSMTPEmailImpl senderSMTPEmailImpl) {
+        return senderSMTPEmailImpl;
+    }
+
+    @Bean(name = "senderOutlookEmailImpl")
+    public Sender senderOutlookEmail(SenderOutlookEmailImpl senderOutlookEmailImpl) {
+        return senderOutlookEmailImpl;
     }
 }
