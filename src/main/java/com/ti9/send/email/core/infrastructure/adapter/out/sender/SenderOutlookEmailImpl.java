@@ -2,6 +2,8 @@ package com.ti9.send.email.core.infrastructure.adapter.out.sender;
 
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
+import com.azure.identity.DeviceCodeCredential;
+import com.azure.identity.DeviceCodeCredentialBuilder;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
 import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.GraphServiceClient;
@@ -73,17 +75,19 @@ public class SenderOutlookEmailImpl implements Sender {
         itemBody.contentType = BodyType.TEXT;
         message.body = itemBody;
 
+        /*
         message.from = new Recipient();
         message.from.emailAddress = new com.microsoft.graph.models.EmailAddress();
         message.from.emailAddress.address = from;
-
+        */
         graphClient.me().sendMail(UserSendMailParameterSet.newBuilder()
                         .withMessage(message)
-                        .withSaveToSentItems(false)
+                        .withSaveToSentItems(true)
                         .build())
                 .buildRequest()
                 .post();
 
+        System.out.println("E-mail enviado com sucesso!");
     }
 
     private GraphServiceClient<?> getGraphClient() {

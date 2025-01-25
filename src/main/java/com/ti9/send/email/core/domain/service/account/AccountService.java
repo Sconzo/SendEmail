@@ -26,6 +26,4 @@ public interface AccountService {
     DataWrapper<AccountResponse> createAccount(AccountRequest body);
 
     void changeStatus(UUID uuid);
-
-    Account updateAccountSettings(UUID id, String accountSettings);
 }

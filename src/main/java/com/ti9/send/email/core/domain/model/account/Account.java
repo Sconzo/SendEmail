@@ -3,7 +3,6 @@ package com.ti9.send.email.core.domain.model.account;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ti9.send.email.core.domain.dto.account.AccountSettings;
-import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
 import com.ti9.send.email.core.domain.dto.account.SmtpSettings;
 import com.ti9.send.email.core.domain.model.UpdatableBaseAudit;
 import com.ti9.send.email.core.domain.model.enums.StatusEnum;
@@ -15,6 +14,7 @@ import lombok.*;
 import org.hibernate.annotations.ColumnTransformer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
@@ -84,15 +84,8 @@ public class Account extends UpdatableBaseAudit {
     public AccountSettings getAccountSettings() {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            switch (this.provider) {
-                case GMAIL,OUTLOOK -> {
-                    return objectMapper.readValue(this.settings, OAuthSettings.class);
-                }
-                case SMTP -> {
-                    return objectMapper.readValue(this.getSettings(), SmtpSettings.class);
-                }
-                case EXCHANGE -> {
-                }
+            if (Objects.requireNonNull(this.provider) == ProviderEnum.SMTP) {
+                return objectMapper.readValue(this.getSettings(), SmtpSettings.class);
             }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
