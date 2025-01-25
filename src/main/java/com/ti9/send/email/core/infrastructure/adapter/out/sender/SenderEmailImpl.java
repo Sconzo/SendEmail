@@ -71,7 +71,7 @@ public class SenderEmailImpl implements Sender<EmailMessageInformationDTO> {
             }
             javaMailSender.send(mimeMessage);
         } catch (Exception e) {
-            throw new SendEmailException(ExceptionMessages.ERROR_SENDING_EMAIL.getMessage());
+            throw new SendEmailException(ExceptionMessages.ERROR_SENDING_EMAIL.getMessage(), e);
         }
     }
 

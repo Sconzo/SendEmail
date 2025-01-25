@@ -24,7 +24,7 @@ public class TaskExecutorService {
                 }
 
             });
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
