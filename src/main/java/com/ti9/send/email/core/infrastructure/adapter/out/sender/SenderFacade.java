@@ -16,11 +16,13 @@ public class SenderFacade {
 
     public SenderFacade(
             @Qualifier("senderSMTPEmailImpl") Sender smtpSender,
-            @Qualifier("senderOutlookEmailImpl") Sender outlookSender
+            @Qualifier("senderOutlookEmailImpl") Sender outlookSender,
+            @Qualifier("senderGmailEmailImpl") Sender gmailSender
     ) {
         this.senders = Map.of(
                 ProviderEnum.SMTP, smtpSender,
-                ProviderEnum.OUTLOOK, outlookSender
+                ProviderEnum.OUTLOOK, outlookSender,
+                ProviderEnum.GMAIL, gmailSender
         );
     }
 

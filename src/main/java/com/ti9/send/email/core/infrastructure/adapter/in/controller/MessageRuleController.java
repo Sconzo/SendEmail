@@ -1,5 +1,8 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.controller;
 
+import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.ti9.send.email.core.domain.dto.DataListWrapper;
 import com.ti9.send.email.core.domain.dto.DataWrapper;
@@ -7,10 +10,21 @@ import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleRequest;
 import com.ti9.send.email.core.domain.dto.message.rule.MessageRuleDTO;
 import com.ti9.send.email.core.domain.dto.message.SummaryMessageDTO;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
+import jakarta.mail.Message;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Properties;
 import java.util.UUID;
 
 @RestController
@@ -88,4 +102,22 @@ public class MessageRuleController {
         dataWrapper.setStatus(HTTPResponse.SC_OK);
         return dataWrapper;
     }
+
+    @Autowired
+    private EmailService emailService;
+
+    @GetMapping("/1234")
+    public void testes() throws Exception {
+        String recipient = "rspolydoro@gmail.com";
+        String subject = "Teste de Envio JSON";
+        String body = "Este é um e-mail enviado usando autenticação com Service Account.";
+
+        try {
+            emailService.sendEmail(recipient, subject, body);
+            System.out.println("Email sent successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
 }
