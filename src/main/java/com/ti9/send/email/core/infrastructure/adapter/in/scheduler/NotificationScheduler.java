@@ -1,19 +1,11 @@
 package com.ti9.send.email.core.infrastructure.adapter.in.scheduler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ti9.send.email.core.application.exceptions.AccessTokenVerificationException;
 import com.ti9.send.email.core.application.exceptions.InvalidInputException;
 import com.ti9.send.email.core.application.exceptions.ResourceNotFoundException;
 import com.ti9.send.email.core.application.exceptions.SendEmailException;
-import com.ti9.send.email.core.application.mapper.message.EmailMessageInformationMapper;
 import com.ti9.send.email.core.domain.dto.UnstructuredMessage;
-import com.ti9.send.email.core.domain.dto.account.OAuthSettings;
-import com.ti9.send.email.core.domain.dto.account.SmtpSettings;
-import com.ti9.send.email.core.domain.dto.message.information.UserInformationDTO;
 import com.ti9.send.email.core.domain.dto.document.DocumentDTO;
-import com.ti9.send.email.core.domain.dto.message.information.EmailMessageInformationDTO;
-import com.ti9.send.email.core.domain.dto.message.information.MessageInformationDTO;
-import com.ti9.send.email.core.domain.model.account.enums.ProviderEnum;
 import com.ti9.send.email.core.domain.model.attach.Attach;
 import com.ti9.send.email.core.domain.model.enums.PaymentStatusEnum;
 import com.ti9.send.email.core.domain.model.inbox.Inbox;
@@ -27,11 +19,9 @@ import com.ti9.send.email.core.domain.service.inbox.InboxService;
 import com.ti9.send.email.core.domain.service.message.rule.MessageRuleService;
 import com.ti9.send.email.core.domain.service.message.template.MessageTemplateService;
 import com.ti9.send.email.core.domain.service.tasks.TaskExecutorService;
-import com.ti9.send.email.core.domain.service.token.TokenService;
 import com.ti9.send.email.core.infrastructure.adapter.out.sender.SenderFacade;
 import com.ti9.send.email.core.infrastructure.adapter.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -52,7 +42,6 @@ public class NotificationScheduler {
     private final AttachLinkLinkServiceImpl attachLinkServiceImpl;
     private final SenderFacade senderFacade;
     private final InboxService inboxService;
-    private final Map<ProviderEnum, TokenService> tokenServiceMap;
 
     @Autowired
     public NotificationScheduler(
@@ -61,9 +50,7 @@ public class NotificationScheduler {
             DocumentService documentService,
             AttachLinkLinkServiceImpl attachLinkServiceImpl,
             SenderFacade senderFacade,
-            InboxService inboxService,
-            @Qualifier("gmailTokenService") TokenService gmailTokenService,
-            @Qualifier("outlookTokenService") TokenService outlookTokenService
+            InboxService inboxService
     ) {
         this.messageRuleService = messageRuleService;
         this.messageTemplateService = messageTemplateService;
@@ -71,10 +58,6 @@ public class NotificationScheduler {
         this.attachLinkServiceImpl = attachLinkServiceImpl;
         this.senderFacade = senderFacade;
         this.inboxService = inboxService;
-        this.tokenServiceMap = Map.of(
-                ProviderEnum.GMAIL, gmailTokenService,
-                ProviderEnum.OUTLOOK, outlookTokenService
-        );
     }
 
     @Scheduled(cron = "${process.messages.cron.expression}")
@@ -166,7 +149,7 @@ public class NotificationScheduler {
         } catch (ResourceNotFoundException e) {
             System.out.println("Resource not found error " + e.getMessage());
         } catch (SendEmailException e) {
-            System.out.println("Error sending email "+ e.getMessage());
+            System.out.println("Error sending email " + e.getMessage());
         } catch (RuntimeException e) {
             System.out.println("Execution error " + e.getMessage());
         } catch (Exception e) {
@@ -175,42 +158,15 @@ public class NotificationScheduler {
     }
 
     private void structureTheMessageAndSendIt(UnstructuredMessage unstructuredMessage) {
-            EmailMessageInformationDTO emailMessageInformationDTO =
-                    EmailMessageInformationMapper.emailMessageInformationDTO(
-                            unstructuredMessage.getDocument(),
-                            unstructuredMessage.getMessageRule(),
-                            unstructuredMessage.getBody(),
-                            unstructuredMessage.getAttachmentList()
-                    );
-            switch (unstructuredMessage.getMessageRule().getMessageTemplate().getAccount().getProvider()) {
-                case SMTP -> {
-                    SmtpSettings smtpSettings =
-                            (SmtpSettings) unstructuredMessage.getMessageRule().getMessageTemplate().getAccount()
-                                    .getAccountSettings();
-                    smtpSettings.decryptPassword();
-                    emailMessageInformationDTO =
-                            EmailMessageInformationMapper.toSMTPEmailMessageInformationDTO(
-                                    emailMessageInformationDTO,
-                                    smtpSettings
-                            );
-                }
-                case GMAIL, OUTLOOK -> {
-                    UserInformationDTO userInformationDTO = tokenServiceMap.get(
-                            unstructuredMessage.getMessageRule().getMessageTemplate().getAccount().getProvider()
-                    ).getDecodedToken(unstructuredMessage.getMessageRule().getMessageTemplate().getAccount());
-                    emailMessageInformationDTO =
-                            EmailMessageInformationMapper.toOAuthEmailMessageInformationDTO(
-                                    emailMessageInformationDTO,
-                                    (OAuthSettings) unstructuredMessage
-                                            .getMessageRule()
-                                            .getMessageTemplate()
-                                            .getAccount()
-                                            .getAccountSettings(),
-                                    userInformationDTO
-                            );
-                }
-            }
-            senderFacade.send(emailMessageInformationDTO);
+        senderFacade.send(
+                Collections.singletonList(unstructuredMessage.getDocument().billingEmail()),
+                unstructuredMessage.getMessageRule().getMessageTemplate().getCc(),
+                unstructuredMessage.getMessageRule().getMessageTemplate().getBcc(),
+                unstructuredMessage.getMessageRule().getMessageTemplate().getSubject(),
+                unstructuredMessage.getBody(),
+                unstructuredMessage.getAttachmentList(),
+                unstructuredMessage.getMessageRule().getMessageTemplate().getAccount()
+        );
 
     }
 
