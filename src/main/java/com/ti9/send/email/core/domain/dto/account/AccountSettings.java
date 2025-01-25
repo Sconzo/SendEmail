@@ -8,7 +8,7 @@ import lombok.Setter;
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         property = "type",
-        defaultImpl = OAuthSettings.class
+        defaultImpl = SmtpSettings.class
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = SmtpSettings.class, name = "SMTP"),
