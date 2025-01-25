@@ -4,7 +4,10 @@ import com.ti9.send.email.core.application.exceptions.SendEmailException;
 import com.ti9.send.email.core.application.exceptions.messages.ExceptionMessages;
 import com.ti9.send.email.core.domain.dto.account.AccountSettings;
 import com.ti9.send.email.core.domain.dto.account.SmtpSettings;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -66,15 +69,38 @@ public class SenderSMTPEmailImpl implements Sender {
         mailSender.setUsername(smtpSettings.getUsername());
         smtpSettings.decryptPassword();
         mailSender.setPassword(smtpSettings.getPassword());
+        final String username = smtpSettings.getUsername();
+        final String password = smtpSettings.getPassword();
 
         mailSender.setHost("smtp.gmail.com"); //mudar dependendo do username
         mailSender.setPort(587);
+        mailSender.setUsername(username);
+        mailSender.setPassword(password);
 
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.starttls.required", "true");
-        props.put("mail.smtp.ssl.trust", "smtp.gmail.com"); //mudar dependendo do username
+        Properties prop = getProperties();
+
+        Session session = Session.getInstance(prop,
+                new jakarta.mail.Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(username, password);
+                    }
+                });
+
+        mailSender.setSession(session);
+    }
+
+    @NotNull
+    private static Properties getProperties() {
+        Properties prop = new Properties();
+        prop.put("mail.smtp.host", "smtp.gmail.com"); //mudar dependendo do username
+        prop.put("mail.smtp.port", "465");
+        prop.put("mail.smtp.auth", "true");
+        prop.put("mail.smtp.socketFactory.port", "465");
+        prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        prop.put("mail.transport.protocol", "smtp");
+        prop.put("mail.smtp.starttls.enable", "true");
+        prop.put("mail.smtp.starttls.required", "true");
+        prop.put("mail.smtp.ssl.trust", "smtp.gmail.com"); //mudar dependendo do username
+        return prop;
     }
 }
