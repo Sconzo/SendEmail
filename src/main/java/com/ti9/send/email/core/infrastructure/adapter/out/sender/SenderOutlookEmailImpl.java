@@ -80,18 +80,23 @@ public class SenderOutlookEmailImpl implements Sender {
         message.from.emailAddress = new com.microsoft.graph.models.EmailAddress();
         message.from.emailAddress.address = from;
         */
-        graphClient.me().sendMail(UserSendMailParameterSet.newBuilder()
+        try {
+
+        graphClient.users(from).sendMail(UserSendMailParameterSet.newBuilder()
                         .withMessage(message)
                         .withSaveToSentItems(true)
                         .build())
                 .buildRequest()
                 .post();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
         System.out.println("E-mail enviado com sucesso!");
     }
 
     private GraphServiceClient<?> getGraphClient() {
-        ClientSecretCredential clientSecretCredential = new ClientSecretCredentialBuilder()
+    ClientSecretCredential clientSecretCredential = new ClientSecretCredentialBuilder()
                 .clientId(clientId)
                 .clientSecret(clientSecret)
                 .tenantId(tenantId)
