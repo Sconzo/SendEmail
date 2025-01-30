@@ -28,12 +28,7 @@ import java.util.Properties;
 @Component
 public class SenderGmailEmailImpl implements Sender {
 
-//    @Value("${gmail.client.id}")
-//    private String clientId;
-//    @Value("${gmail.client.secret}")
-//    private String clientSecret;
-    @Value("${gmail.sender.address}")
-    private String from;
+    private static final String FROM = System.getenv("GMAIL_FROM");
 
     @Override
     public void send(
@@ -63,7 +58,7 @@ public class SenderGmailEmailImpl implements Sender {
         GoogleCredentials credentials = GoogleCredentials
                 .fromStream(credentialsStream)
                 .createScoped(Collections.singleton(GmailScopes.MAIL_GOOGLE_COM))
-                .createDelegated("notificacoes@ti9.com.br");
+                .createDelegated(FROM);
 
         // Crie o serviço Gmail autenticado
         return new Gmail.Builder(
