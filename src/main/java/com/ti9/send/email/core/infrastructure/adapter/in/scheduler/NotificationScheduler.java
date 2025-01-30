@@ -123,7 +123,6 @@ public class NotificationScheduler {
                         int calendarDayDifference = document.calendarDayDifferenceIssueDate();
                         shouldBeSent = messageRule.getSelectedDay().contains((short) calendarDayDifference);
                     }
-                    shouldBeSent = true;
                     if (shouldBeSent) {
                         unstructuredMessageList.add(
                                 new UnstructuredMessage(
