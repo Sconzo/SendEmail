@@ -78,7 +78,7 @@ public class SenderGmailEmailImpl implements Sender {
             email.addRecipient(jakarta.mail.Message.RecipientType.TO, new InternetAddress(to));
         }
         email.setSubject(subject);
-        email.setText(bodyText);
+        email.setContent(bodyText, "text/html; charset=utf-8");
         return email;
     }
 
