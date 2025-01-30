@@ -72,15 +72,8 @@ public class SenderOutlookEmailImpl implements Sender {
 
         ItemBody itemBody = new ItemBody();
         itemBody.content = body;
-        itemBody.contentType = BodyType.TEXT;
+        itemBody.contentType = BodyType.HTML;
         message.body = itemBody;
-
-        /*
-        message.from = new Recipient();
-        message.from.emailAddress = new com.microsoft.graph.models.EmailAddress();
-        message.from.emailAddress.address = from;
-        */
-        try {
 
         graphClient.users(from).sendMail(UserSendMailParameterSet.newBuilder()
                         .withMessage(message)
@@ -88,15 +81,10 @@ public class SenderOutlookEmailImpl implements Sender {
                         .build())
                 .buildRequest()
                 .post();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-
-        System.out.println("E-mail enviado com sucesso!");
     }
 
     private GraphServiceClient<?> getGraphClient() {
-    ClientSecretCredential clientSecretCredential = new ClientSecretCredentialBuilder()
+        ClientSecretCredential clientSecretCredential = new ClientSecretCredentialBuilder()
                 .clientId(clientId)
                 .clientSecret(clientSecret)
                 .tenantId(tenantId)
