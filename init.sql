@@ -528,11 +528,108 @@ VALUES('36734e49-c3a2-4caa-b56a-b7233fe4f987'::uuid, 'Gmail Account', 'GMAIL', '
 
 INSERT INTO public.ecob_msg_model
 (id, "action", account_id, recipient_type, reply_to, cc, bcc, subject, body_text, created, updated)
-VALUES('871d0f61-53f6-4658-b4fd-ca4af6e63c1a'::uuid, 'EMAIL', '5deccd02-6e06-4541-afdd-c0d598470c98'::uuid, 'COBRANCA', '', '{costing013@outlook.com}', '{costing013@outlook.com}', 'Ola mundo outlook', 'Ola mundo outlook', '2025-01-05 19:34:59.514', NULL);
-
+VALUES('871d0f61-53f6-4658-b4fd-ca4af6e63c1a'::uuid, 'EMAIL', '5deccd02-6e06-4541-afdd-c0d598470c98'::uuid, 'COBRANCA', '', '{costing013@outlook.com}', '{costing013@outlook.com}', 'Ola mundo outlook', '<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Mensagem de E-mail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .email-container {
+            max-width: 600px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #d35400;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h1>Olá, {{NOME_CLIENTE}}</h1>
+        <p>Nome de contato: <span class="highlight">{{NOME_CONTATO}}</span></p>
+        <p>O número: <span class="highlight">{{NUMERO_DOCUMENTO}}</span></p>
+        <p>Data de emissão: <span class="highlight">{{DATA_EMISSAO}}</span> | Data de vencimento: <span class="highlight">{{DATA_VENCIMENTO}}</span></p>
+        <p>Dias para vencimento: <span class="highlight">{{DIAS_PARA_VENCIMENTO}}</span></p>
+        <p>Valor aberto: <span class="highlight">{{VALOR_ABERTO}}</span></p>
+        <h2>Valor do documento: {{VALOR_DOCUMENTO}}</h2>
+    </div>
+</body>
+</html>
+', '2025-01-05 19:34:59.514', NULL);
 INSERT INTO public.ecob_msg_model
 (id, "action", account_id, recipient_type, reply_to, cc, bcc, subject, body_text, created, updated)
-VALUES('ffd9c55f-5c84-4f26-9159-c8b09137e187'::uuid, 'EMAIL', '36734e49-c3a2-4caa-b56a-b7233fe4f987'::uuid, 'COBRANCA', '', '{costing013@gmail.com}', '{costing013@gmail.com}', 'Ola mundo', '<h1>Ola mundo body</h1><br><p>Email test!</p>', '2024-12-04 21:52:35.297', NULL);
+VALUES('ffd9c55f-5c84-4f26-9159-c8b09137e187'::uuid, 'EMAIL', '36734e49-c3a2-4caa-b56a-b7233fe4f987'::uuid, 'COBRANCA', '', '{costing013@gmail.com}', '{costing013@gmail.com}', 'Ola mundo', '<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Mensagem de E-mail</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .email-container {
+            max-width: 600px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #d35400;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h1>Olá, {{NOME_CLIENTE}}</h1>
+        <p>Nome de contato: <span class="highlight">{{NOME_CONTATO}}</span></p>
+        <p>O número: <span class="highlight">{{NUMERO_DOCUMENTO}}</span></p>
+        <p>Data de emissão: <span class="highlight">{{DATA_EMISSAO}}</span> | Data de vencimento: <span class="highlight">{{DATA_VENCIMENTO}}</span></p>
+        <p>Dias para vencimento: <span class="highlight">{{DIAS_PARA_VENCIMENTO}}</span></p>
+        <p>Valor aberto: <span class="highlight">{{VALOR_ABERTO}}</span></p>
+        <h2>Valor do documento: {{VALOR_DOCUMENTO}}</h2>
+    </div>
+</body>
+</html>
+', '2024-12-04 21:52:35.297', NULL);
 
 INSERT INTO public.ecob_msg
 (id, "name", date_rule, date_index, selected_times, selected_days, doc_types, doc_status, include_attachments, model_id, created, updated, status)
