@@ -17,10 +17,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -54,7 +52,9 @@ public class SenderGmailEmailImpl implements Sender {
 
     public static Gmail getGmailService() throws IOException {
         // Carregue o arquivo de credenciais JSON
-        FileInputStream credentialsStream = new FileInputStream("src/main/resources/credentials.json");
+        String jsonCreds = System.getenv("GOOGLE_CREDENTIALS");
+        InputStream credentialsStream = new ByteArrayInputStream(jsonCreds.getBytes(StandardCharsets.UTF_8));
+
         GoogleCredentials credentials = GoogleCredentials
                 .fromStream(credentialsStream)
                 .createScoped(Collections.singleton(GmailScopes.MAIL_GOOGLE_COM))
