@@ -23,8 +23,6 @@ import java.util.Properties;
 public class SenderSMTPEmailImpl implements Sender {
 
     private final JavaMailSender mailSender;
-    @Value("${email}")
-    private String from;
 
     @Autowired
     public SenderSMTPEmailImpl(
@@ -47,7 +45,7 @@ public class SenderSMTPEmailImpl implements Sender {
             smtpConfiguration((JavaMailSenderImpl) mailSender, (SmtpSettings) accountSettings);
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8");
-            helper.setFrom(from);
+            helper.setFrom(((SmtpSettings) accountSettings).getUsername());
             helper.setTo(recipientList.toArray(new String[0]));
             helper.setCc(ccRecipentList.toArray(new String[0]));
             helper.setBcc(bccRecipentList.toArray(new String[0]));
