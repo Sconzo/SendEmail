@@ -9,7 +9,6 @@ import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -70,12 +69,12 @@ public class SenderSMTPEmailImpl implements Sender {
         final String username = smtpSettings.getUsername();
         final String password = smtpSettings.getPassword();
 
-        mailSender.setHost("smtp.gmail.com"); //mudar dependendo do username
-        mailSender.setPort(587);
+        mailSender.setHost(smtpSettings.getHost());
+        mailSender.setPort(smtpSettings.getPort());
         mailSender.setUsername(username);
         mailSender.setPassword(password);
 
-        Properties prop = getProperties();
+        Properties prop = getProperties(smtpSettings.getHost(), smtpSettings.getPort());
 
         Session session = Session.getInstance(prop,
                 new jakarta.mail.Authenticator() {
@@ -88,17 +87,17 @@ public class SenderSMTPEmailImpl implements Sender {
     }
 
     @NotNull
-    private static Properties getProperties() {
+    private static Properties getProperties(String host, int port) {
         Properties prop = new Properties();
-        prop.put("mail.smtp.host", "smtp.gmail.com"); //mudar dependendo do username
-        prop.put("mail.smtp.port", "465");
+        prop.put("mail.smtp.host", host);
+        prop.put("mail.smtp.port", port);
         prop.put("mail.smtp.auth", "true");
-        prop.put("mail.smtp.socketFactory.port", "465");
+        prop.put("mail.smtp.socketFactory.port", port);
         prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         prop.put("mail.transport.protocol", "smtp");
         prop.put("mail.smtp.starttls.enable", "true");
         prop.put("mail.smtp.starttls.required", "true");
-        prop.put("mail.smtp.ssl.trust", "smtp.gmail.com"); //mudar dependendo do username
+        prop.put("mail.smtp.ssl.trust", host);
         return prop;
     }
 }

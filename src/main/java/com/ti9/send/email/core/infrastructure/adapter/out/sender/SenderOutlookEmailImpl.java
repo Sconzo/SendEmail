@@ -2,16 +2,18 @@ package com.ti9.send.email.core.infrastructure.adapter.out.sender;
 
 import com.azure.identity.ClientSecretCredential;
 import com.azure.identity.ClientSecretCredentialBuilder;
-import com.azure.identity.DeviceCodeCredential;
-import com.azure.identity.DeviceCodeCredentialBuilder;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
 import com.microsoft.graph.models.*;
+import com.microsoft.graph.requests.AttachmentCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.ti9.send.email.core.domain.dto.account.AccountSettings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -74,6 +76,25 @@ public class SenderOutlookEmailImpl implements Sender {
         itemBody.content = body;
         itemBody.contentType = BodyType.HTML;
         message.body = itemBody;
+
+        List<Attachment> attachments = new ArrayList<>();
+        try {
+            for (File file : fileList) {
+                byte[] fileData = Files.readAllBytes(file.toPath());
+
+                FileAttachment attachment = new FileAttachment();
+                attachment.oDataType = "#microsoft.graph.fileAttachment";
+                attachment.name = file.getName();
+                attachment.contentType = Files.probeContentType(file.toPath());
+                attachment.contentBytes = fileData;
+
+                attachments.add(attachment);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        message.attachments = new AttachmentCollectionPage(attachments, null);
 
         graphClient.users(from).sendMail(UserSendMailParameterSet.newBuilder()
                         .withMessage(message)
