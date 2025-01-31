@@ -644,16 +644,33 @@ INSERT INTO public.ecob_inbox (id,account_id,reply_to,recipients_to,recipients_c
 	 ('e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid,'36734e49-c3a2-4caa-b56a-b7233fe4f987'::uuid,'poly','{poly}','{poly}','{poly}','HIGH','poly','PLAIN','poly','2024-12-16 21:10:18.817251','2024-12-16 19:49:17.618','2024-12-16 19:49:17.618','SCHEDULED',NULL);
 
 
-INSERT INTO public.ecob_inbox_link (id,inbox_id,ref_id) VALUES
-	 ('da73f39b-a12e-4c65-a4d0-b7f2dc6a0d95'::uuid,'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid,'1f820e61-7571-447f-a7f1-8040ef818b84'::uuid),
-	 ('6b025080-7233-44f9-8178-38a26579d629'::uuid,'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid,'c8aac466-dcd9-4386-83d5-3d5f993c5f24'::uuid),
-	 ('e34c0908-0f08-4427-aa55-5cb463113f8b'::uuid,'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid,'44aca1a4-7f17-4e3f-8ca5-4b820280e5f5'::uuid),
-	 ('c980696b-e689-4427-93ba-97d226168b5b'::uuid,'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid,'05de4c2a-64dd-466f-acfd-512c466ae5ce'::uuid),
-	 ('859ac78f-a93f-4046-a608-a25245e592f5'::uuid,'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid,'7b640b08-0b59-4e84-a00c-857ae7adccdc'::uuid),
-	 ('efe4a65d-05af-4d00-9736-090141d43a47'::uuid,'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid,'4e64a46f-b64e-4772-9134-51879b21b143'::uuid),
-	 ('fce0b177-04d9-4ad1-ae30-9e4c7f629944'::uuid,'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid,'4e64a46f-b64e-4772-9134-51879b21b143'::uuid);
-
-
+INSERT INTO public.ecob_inbox_link
+(id, inbox_id, ref_id)
+VALUES('da73f39b-a12e-4c65-a4d0-b7f2dc6a0d95'::uuid, 'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid, '1f820e61-7571-447f-a7f1-8040ef818b84'::uuid);
+INSERT INTO public.ecob_inbox_link
+(id, inbox_id, ref_id)
+VALUES('6b025080-7233-44f9-8178-38a26579d629'::uuid, 'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid, 'c8aac466-dcd9-4386-83d5-3d5f993c5f24'::uuid);
+INSERT INTO public.ecob_inbox_link
+(id, inbox_id, ref_id)
+VALUES('e34c0908-0f08-4427-aa55-5cb463113f8b'::uuid, 'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid, '44aca1a4-7f17-4e3f-8ca5-4b820280e5f5'::uuid);
+INSERT INTO public.ecob_inbox_link
+(id, inbox_id, ref_id)
+VALUES('c980696b-e689-4427-93ba-97d226168b5b'::uuid, 'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid, '05de4c2a-64dd-466f-acfd-512c466ae5ce'::uuid);
+INSERT INTO public.ecob_inbox_link
+(id, inbox_id, ref_id)
+VALUES('859ac78f-a93f-4046-a608-a25245e592f5'::uuid, 'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid, '7b640b08-0b59-4e84-a00c-857ae7adccdc'::uuid);
+INSERT INTO public.ecob_inbox_link
+(id, inbox_id, ref_id)
+VALUES('efe4a65d-05af-4d00-9736-090141d43a47'::uuid, 'e0383603-962c-4843-ae8d-ee75e8ef890b'::uuid, '4e64a46f-b64e-4772-9134-51879b21b143'::uuid);
+INSERT INTO public.ecob_inbox_link
+(id, inbox_id, ref_id)
+VALUES('a25919d8-de87-42f4-b144-cecae329c4b8'::uuid, '67ee0cde-46bf-408c-b51f-6b3fc88a81f6'::uuid, '7b640b08-0b59-4e84-a00c-857ae7adccdc'::uuid);
+INSERT INTO public.ecob_inbox_link
+(id, inbox_id, ref_id)
+VALUES('d4906c16-8d54-42a7-a66b-856c08bb479b'::uuid, '67ee0cde-46bf-408c-b51f-6b3fc88a81f6'::uuid, '4e64a46f-b64e-4772-9134-51879b21b143'::uuid);
+INSERT INTO public.ecob_inbox_link
+(id, inbox_id, ref_id)
+VALUES('2cb3069e-fed5-4f58-bd82-4b0cd458b373'::uuid, '67ee0cde-46bf-408c-b51f-6b3fc88a81f6'::uuid, '05de4c2a-64dd-466f-acfd-512c466ae5ce'::uuid);
 
 
 -- Completed on 2024-11-07 16:35:48
